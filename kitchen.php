@@ -10,7 +10,8 @@
         <tr>
             <th>Заказ</th>
             <th>Статус заказа</th>
-            <th>Время создания</th>
+            <th>Блюда</th>
+            <th>Доставка</th>
             <th>Действия</th>
         </tr>
         <?php
@@ -40,7 +41,7 @@
         }
 
         // Запрос на получение списка заказов
-        $sql = "SELECT id, status, time FROM Orders";
+        $sql = "SELECT id, status, dishes_name, time FROM Orders"; // Заменяем compound на dishes_name
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) 
@@ -52,6 +53,11 @@
                 echo "<td>".$row["id"]."</td>";
                 // Вывод статуса заказа из базы данных
                 echo "<td>".$row["status"]."</td>";
+                
+                // Вывод блюд
+                echo "<td>".$row["dishes_name"]."</td>";
+
+                
                 echo "<td>".$row["time"]."</td>";
                 // Кнопки для изменения статуса заказа
                 echo "<td>";
