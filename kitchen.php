@@ -1,49 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Кухня</title>
 </head>
 <body>
-    <h1>Кухня</h1>
+    <h1>Список заказов</h1>
     <h2>Заказы в стадии подготовки</h2>
     <table>
         <tr>
             <th>Заказ</th>
             <th>Статус заказа</th>
-            <th>Действие</th>
+            <th>Время создания</th>
+            <th>Действия</th>
         </tr>
         <?php
-            // Подключение к бд
-            $conn = mysqli_connect("localhost", "root", "", "delivery");
-            if (!$conn) 
-            {
-                die("Connection failed: " . mysqli_connect_error());
-            }
+        // Подключение к базе данных
+        $conn = new mysqli("localhost", "root", "", "delivery");
 
-            // Получение заказов 
-            $sql = "SELECT id, status FROM Orders WHERE status = 'В процессе'";
-            $result = mysqli_query($conn, $sql);
+        // Проверка соединения
+        if ($conn->connect_error) 
+        {
+            die("Connection failed: " . $conn->connect_error);
+        }
 
-            if (mysqli_num_rows($result) > 0) 
+        // Обработка изменения статуса заказа
+        if ($_SERVER["REQUEST_METHOD"] == "POST") 
+        {
+            $order_id = $_POST["order_id"];
+            $new_status = $_POST["new_status"];
+            $sql_update = "UPDATE Orders SET status='$new_status' WHERE id=$order_id";
+            if ($conn->query($sql_update) === TRUE) 
             {
-                while ($row = mysqli_fetch_assoc($result)) 
-                {
-                    echo "<tr>";
-                    echo "<td>" . $row['id'] . "</td>";
-                    echo "<td>" . $row['status'] . "</td>";
-                    echo "<td><a href='kitchen.php?orders_id=" . $row['id'] . "'>Начало готовки</a></td>";
-                    echo "</tr>";
-                }
+                echo "Статус заказа успешно изменен";
             } 
-            
             else 
             {
-                echo "<tr><td colspan='3'> Нет заказов </td></tr>";
+                echo "Ошибка при изменении статуса заказа: " . $conn->error;
             }
+        }
 
-            mysqli_close($conn);
+        // Запрос на получение списка заказов
+        $sql = "SELECT id, status, time FROM Orders";
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) 
+        {
+            // Вывод каждого заказа
+            while($row = $result->fetch_assoc()) 
+            {
+                echo "<tr>";
+                echo "<td>".$row["id"]."</td>";
+                // Вывод статуса заказа из базы данных
+                echo "<td>".$row["status"]."</td>";
+                echo "<td>".$row["time"]."</td>";
+                // Кнопки для изменения статуса заказа
+                echo "<td>";
+                echo "<form action='kitchen.php' method='post'>";
+                echo "<input type='hidden' name='order_id' value='".$row["id"]."'>";
+                echo "<select name='new_status'>";
+                echo "<option value='На кухне'>На кухне</option>";
+                echo "<option value='Ожидает курьера'>Ожидает курьера</option>";
+                echo "<option value='Обрабатывается'>Обрабатывается</option>";
+                echo "</select>";
+                echo "<input type='submit' value='Изменить статус'>";
+                echo "</form>";
+                echo "</td>";
+                echo "</tr>";
+            }
+        } 
+        else 
+        {
+            echo "результатов не найдено";
+        }
+        $conn->close();
         ?>
     </table>
 </body>
