@@ -43,12 +43,12 @@ $dishes = $stmt->fetchAll();
     </style>
 </head>
 <body>
-    <h1>Restaurant Menu</h1>
+    <h1>Меню</h1>
     <ul id="menuList">
         <?php foreach ($dishes as $dish): ?>
             <li>
-                <strong><?php echo $dish['name']; ?></strong> - <?php echo $dish['description']; ?>
-                <button onclick="addToCart(<?php echo $dish['id']; ?>, '<?php echo $dish['name']; ?>')">Add to Cart</button>
+                <strong><?php echo $dish['name']; ?></strong>
+                <button onclick="addToCart(<?php echo $dish['id']; ?>, '<?php echo $dish['name']; ?>')">В корзину</button>
             </li>
         <?php endforeach; ?>
     </ul>
@@ -65,11 +65,13 @@ $dishes = $stmt->fetchAll();
 <div id="confirmModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal('confirmModal')">&times;</span>
-        <h2>Confirm Purchase</h2>
-        <p>Are you sure you want to add this item to your cart?</p>
-        <button onclick="confirmPurchase()">Confirm</button>
+        <h2>Вы точно хотите добавить это в корзину?</h2>
+        <h3 id="confirmDishName"></h3>
+        <p id="confirmDishDescription"></p>
+        <button onclick="confirmPurchase()">Добавить в корзину</button>
     </div>
 </div>
+
 
 
     <!-- Кнопка "Корзина" -->
@@ -79,7 +81,7 @@ $dishes = $stmt->fetchAll();
     <div id="cartModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('cartModal')">&times;</span>
-            <h2>Cart</h2>
+            <h2>Корзина</h2>
             <ul id="cartItems"></ul>
         </div>
     </div>
@@ -88,13 +90,22 @@ $dishes = $stmt->fetchAll();
         let cart = [];
 
         function addToCart(dishId, dishName) {
-    document.getElementById('confirmModal').style.display = 'block';
     selectedDish = { id: dishId, name: dishName };
+    // Запрос к базе данных для получения информации о выбранном блюде
+    fetch('getDishInfo.php?id=' + dishId)
+        .then(response => response.json())
+        .then(data => {
+            selectedDish = data;
+            document.getElementById('confirmDishName').textContent = selectedDish.name;
+            document.getElementById('confirmDishDescription').textContent = selectedDish.description;
+            document.getElementById('confirmModal').style.display = 'block';
+        })
+        .catch(error => console.error('Error:', error));
 }
 
-        let selectedDish = null;
 
-        function confirmPurchase() {
+
+function confirmPurchase() {
     if (selectedDish) {
         cart.push(selectedDish);
         updateCart();
