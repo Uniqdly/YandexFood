@@ -74,19 +74,27 @@ $dishes = $stmt->fetchAll();
 
 
 
+
     <!-- Кнопка "Корзина" -->
     <button id="cartButton" onclick="openCart()">Корзина</button>
 
     <!-- Модальное окно с корзиной -->
-    <div id="cartModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('cartModal')">&times;</span>
-            <h2>Корзина</h2>
-            <ul id="cartItems"></ul>
-        </div>
+<div id="cartModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('cartModal')">&times;</span>
+        <h2>Корзина</h2>
+        <ul id="cartItems"></ul>
+        <button id="orderButton" onclick="placeOrder()">Заказать</button>
     </div>
+</div>
+
 
     <script>
+        function placeOrder() {
+    // Перенаправление на страницу заказа
+    window.location.href = 'order.php';
+}
+
         let cart = [];
 
         function addToCart(dishId, dishName) {
