@@ -11,8 +11,10 @@
             <th>Заказ</th>
             <th>Статус заказа</th>
             <th>Блюда</th>
-            <th>Доставка</th>
+            <th>Ингредиенты</th>
+            <th>Доставка к</th>
             <th>Действия</th>
+            <th>Курьер который забирает заказ</th>
         </tr>
         <?php
         // Подключение к базе данных
@@ -41,7 +43,7 @@
         }
 
         // Запрос на получение списка заказов
-        $sql = "SELECT id, status, dishes_name, time FROM Orders"; // Заменяем compound на dishes_name
+        $sql = "SELECT id, status, dishes_name, time FROM Orders"; 
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) 
@@ -56,7 +58,30 @@
                 
                 // Вывод блюд
                 echo "<td>".$row["dishes_name"]."</td>";
+                
+                // Получение ингредиентов для каждого блюда
+                $dish_id = $row["id"];
+                $sql_dish_ingredients = "SELECT i.name AS ingredient_name
+                                         FROM Dish_Ingredients di
+                                         INNER JOIN ingredients i ON di.ingredient_id = i.id
+                                         WHERE di.dish_id = $dish_id";
+                $result_dish_ingredients = $conn->query($sql_dish_ingredients);
 
+                // Вывод ингредиентов
+                echo "<td>";
+                if ($result_dish_ingredients->num_rows > 0) 
+                {
+                    while ($ingredient_row = $result_dish_ingredients->fetch_assoc()) 
+                    {
+                        echo $ingredient_row["ingredient_name"] . "<br>";
+                    }
+                } 
+                else 
+                {
+                    echo "нет ингредиентов";
+                }
+                echo "</td>";
+                
                 
                 echo "<td>".$row["time"]."</td>";
                 // Кнопки для изменения статуса заказа
@@ -64,9 +89,10 @@
                 echo "<form action='kitchen.php' method='post'>";
                 echo "<input type='hidden' name='order_id' value='".$row["id"]."'>";
                 echo "<select name='new_status'>";
+                echo "<option value='Обрабатывается'>Обрабатывается</option>";
                 echo "<option value='На кухне'>На кухне</option>";
                 echo "<option value='Ожидает курьера'>Ожидает курьера</option>";
-                echo "<option value='Обрабатывается'>Обрабатывается</option>";
+                echo "<option value='Передано курьеру'>Передано курьеру</option>";
                 echo "</select>";
                 echo "<input type='submit' value='Изменить статус'>";
                 echo "</form>";
