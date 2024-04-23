@@ -43,16 +43,17 @@ $dishes = $stmt->fetchAll();
     </style>
 </head>
 <body>
+    
     <h1>Меню</h1>
     <ul id="menuList">
-        <?php foreach ($dishes as $dish): ?>
-            <li>
-                <strong><?php echo $dish['name']; ?></strong>
-                <button onclick="addToCart(<?php echo $dish['id']; ?>, '<?php echo $dish['name']; ?>')">В корзину</button>
-            </li>
-        <?php endforeach; ?>
-    </ul>
-
+    <?php foreach ($dishes as $dish): ?>
+        <li>
+            <strong><?php echo $dish['name']; ?></strong>
+            <button onclick="addToCart(<?php echo $dish['id']; ?>, '<?php echo $dish['name']; ?>')">Добавить в корзину</button>
+        </li>
+    <?php endforeach; ?>
+</ul>
+    <button onclick="redirectToRegister()">Register</button>
     <!-- Модальное окно с информацией о блюде -->
     <div id="dishModal" class="modal">
         <div class="modal-content">
@@ -90,6 +91,10 @@ $dishes = $stmt->fetchAll();
 
 
     <script>
+        function redirectToRegister() {
+    window.location.href = 'register.php';
+}
+
         function placeOrder() {
     // Перенаправление на страницу заказа
     window.location.href = 'order.php';
@@ -124,6 +129,7 @@ function confirmPurchase() {
 
 
 
+
         function removeFromCart(index) {
             cart.splice(index, 1);
             updateCart();
@@ -153,6 +159,7 @@ function confirmPurchase() {
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
+        
     </script>
     <!-- Модальное окно подтверждения покупки -->
 <div id="confirmModal" class="modal">
