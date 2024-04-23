@@ -120,36 +120,58 @@ $dishes = $stmt->fetchAll();
 
 function confirmPurchase() {
     if (selectedDish) {
-        cart.push(selectedDish);
+        // Проверяем, есть ли выбранный продукт уже в корзине
+        const existingItemIndex = cart.findIndex(item => item.id === selectedDish.id);
+        
+        if (existingItemIndex !== -1) {
+            // Если продукт уже есть в корзине, увеличиваем его количество
+            cart[existingItemIndex].quantity += 1;
+        } else {
+            // Если продукта нет в корзине, добавляем его
+            selectedDish.quantity = 1;
+            cart.push(selectedDish);
+        }
+        
         updateCart();
         closeModal('confirmModal');
         selectedDish = null; // Сброс выбранного блюда после добавления в корзину
     }
 }
 
+function removeFromCart(index) {
+    cart[index].quantity -= 1;
+    
+    if (cart[index].quantity === 0) {
+        cart.splice(index, 1);
+    }
+    
+    updateCart();
+}
 
-
-
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            updateCart();
-        }
 
         function updateCart() {
-            const cartItemsElement = document.getElementById('cartItems');
-            cartItemsElement.innerHTML = '';
-            cart.forEach((item, index) => {
-                const li = document.createElement('li');
-                li.classList.add('burger');
-                li.textContent = item.name;
-                const removeButton = document.createElement('span');
-                removeButton.textContent = '-';
-                removeButton.classList.add('remove');
-                removeButton.onclick = () => removeFromCart(index);
-                li.appendChild(removeButton);
-                cartItemsElement.appendChild(li);
-            });
-        }
+    const cartItemsElement = document.getElementById('cartItems');
+    cartItemsElement.innerHTML = '';
+    
+    cart.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.classList.add('burger');
+        
+        const itemName = document.createElement('span');
+        itemName.textContent = item.name + ' x' + item.quantity;
+        
+        const removeButton = document.createElement('span');
+        removeButton.textContent = '-';
+        removeButton.classList.add('remove');
+        removeButton.onclick = () => removeFromCart(index);
+        
+        li.appendChild(itemName);
+        li.appendChild(removeButton);
+        
+        cartItemsElement.appendChild(li);
+    });
+}
+
 
         function openCart() {
             document.getElementById('cartModal').style.display = 'block';
