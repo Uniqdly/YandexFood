@@ -37,7 +37,7 @@
             <th>Действия</th>
         </tr>
         <?php
-        // Отображение текущего меню блюд с возможностью редактирования
+        // Отображение текущего меню блюд с возможностью редактирования и удаления
         $conn = new mysqli("localhost", "root", "", "delivery");
 
         if ($conn->connect_error) {
@@ -94,11 +94,12 @@
                     }
                 }
                 $ingredients_str = implode(", ", $ingredients_list);
+                
                 echo "<td><input type='text' value='" . $ingredients_str . "'></td>";
                 
                 echo "<td><input type='text' value='" . $row["description"] . "'></td>";
                 echo "<td><input type='text' value='" . $row["price"] . "'></td>";
-                echo "<td><button>Сохранить</button></td>";
+                echo "<td><button>Сохранить</button> <button>Удалить</button></td>";
                 echo "</tr>";
             }
         } else {
@@ -107,5 +108,62 @@
         $conn->close();
         ?>
     </table>
+
+    <h2>Заказы</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Статус</th>
+            <th>Состав</th>
+            <th>Общая стоимость</th>
+            <th>Адрес</th>
+            <th>Время</th>
+            <th>Номер телефона</th>
+            <th>Комментарий</th>
+            <th>Изменить статус</th>
+        </tr>
+        <?php
+        // Отображение всех заказов с возможностью изменения статуса
+        $conn = new mysqli("localhost", "root", "", "delivery");
+
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        $sql = "SELECT * FROM Orders";
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                echo "<tr>";
+                echo "<td>" . $row["id"] . "</td>";
+                echo "<td>" . $row["status"] . "</td>";
+                echo "<td>" . $row["dishes_name"] . "</td>";
+                echo "<td>" . $row["total_price"] . "</td>";
+                echo "<td>" . $row["address"] . "</td>";
+                echo "<td>" . $row["time"] . "</td>";
+                echo "<td>" . $row["phone_number"] . "</td>";
+                echo "<td>" . $row["comment"] . "</td>";
+                echo "<td>
+                        <form action='update_status.php' method='post'>
+                            <input type='hidden' name='order_id' value='" . $row["id"] . "'>
+                            <select name='status'>
+                                <option value='В обработке'>В обработке</option>
+                                <option value='Выполняется'>Выполняется</option>
+                                <option value='Доставляется'>Доставляется</option>
+                                <option value='Доставлено'>Доставлено</option>
+                            </select>
+                            <input type='submit' name='update_status' value='Обновить'>
+                        </form>
+                      </td>";
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='9'>Нет доступных заказов.</td></tr>";
+        }
+        $conn->close();
+        ?>
+    </table>
 </body>
 </html>
+
