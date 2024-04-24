@@ -41,18 +41,26 @@ $dishes = $stmt->fetchAll();
             cursor: pointer;
         }
     </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
     
     <h1>Меню</h1>
-    <ul id="menuList">
-    <?php foreach ($dishes as $dish): ?>
-        <li>
-            <strong><?php echo $dish['name']; ?></strong>
-            <button onclick="addToCart(<?php echo $dish['id']; ?>, '<?php echo $dish['name']; ?>')">Добавить в корзину</button>
-        </li>
-    <?php endforeach; ?>
-</ul>
+    <div class="container">
+    <div class="row">
+        <?php foreach ($dishes as $dish): ?>
+            <div class="card" style="width: 18rem;">
+                <img src="<?php echo $dish['image_url']; ?>" class="card-img-top" alt="<?php echo $dish['name']; ?>">
+                <div class="card-body">
+                    <h5 class="card-title"><?php echo $dish['name']; ?></h5>
+                    <p class="card-text"><?php echo $dish['description']; ?></p>
+                    <button onclick="addToCart(<?php echo $dish['id']; ?>, '<?php echo $dish['name']; ?>')" class="btn btn-primary">Добавить в корзину</button>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+
     <button onclick="redirectToRegister()">Register</button>
     <!-- Модальное окно с информацией о блюде -->
     <div id="dishModal" class="modal">
@@ -95,28 +103,36 @@ $dishes = $stmt->fetchAll();
     window.location.href = 'register.php';
 }
 
-        function placeOrder() {
-    // Перенаправление на страницу заказа
-    window.location.href = 'order.php';
+function placeOrder() {
+    // Подготовка списка блюд для передачи в URL
+    const selectedDishesIds = cart.map(item => item.id).join(',');
+    
+    // Перенаправление на страницу заказа с передачей списка блюд через параметр URL
+    window.location.href = 'order.php?dishes=' + selectedDishesIds;
 }
 
-        let cart = [];
+
+        
 
         function addToCart(dishId, dishName) {
-    selectedDish = { id: dishId, name: dishName };
-    // Запрос к базе данных для получения информации о выбранном блюде
     fetch('getDishInfo.php?id=' + dishId)
         .then(response => response.json())
         .then(data => {
-            selectedDish = data;
-            document.getElementById('confirmDishName').textContent = selectedDish.name;
-            document.getElementById('confirmDishDescription').textContent = selectedDish.description;
-            document.getElementById('confirmModal').style.display = 'block';
+            if (data.error) {
+                console.error('Error:', data.error);
+            } else {
+                selectedDish = data;
+                document.getElementById('confirmDishName').textContent = selectedDish.name;
+                document.getElementById('confirmDishDescription').textContent = selectedDish.description;
+                document.getElementById('confirmModal').style.display = 'block';
+            }
         })
         .catch(error => console.error('Error:', error));
 }
 
 
+let cart = [];
+let cartItems = [];
 
 function confirmPurchase() {
     if (selectedDish) {
@@ -126,10 +142,12 @@ function confirmPurchase() {
         if (existingItemIndex !== -1) {
             // Если продукт уже есть в корзине, увеличиваем его количество
             cart[existingItemIndex].quantity += 1;
+            cartItems[existingItemIndex].quantity += 1;
         } else {
             // Если продукта нет в корзине, добавляем его
             selectedDish.quantity = 1;
             cart.push(selectedDish);
+            cartItems.push({ id: selectedDish.id, name: selectedDish.name, quantity: 1 });
         }
         
         updateCart();
@@ -149,11 +167,11 @@ function removeFromCart(index) {
 }
 
 
-        function updateCart() {
+function updateCart() {
     const cartItemsElement = document.getElementById('cartItems');
     cartItemsElement.innerHTML = '';
     
-    cart.forEach((item, index) => {
+    cartItems.forEach((item, index) => {
         const li = document.createElement('li');
         li.classList.add('burger');
         
@@ -170,7 +188,7 @@ function removeFromCart(index) {
         
         cartItemsElement.appendChild(li);
     });
-}
+}н
 
 
         function openCart() {
