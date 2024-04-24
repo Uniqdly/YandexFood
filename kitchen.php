@@ -18,33 +18,33 @@
         </tr>
         <?php
         // Подключение к базе данных
-        $conn = new mysqli("localhost", "root", "", "delivery");
+$conn = new mysqli("localhost", "root", "", "delivery");
 
-        // Проверка соединения
-        if ($conn->connect_error) 
-        {
-            die("Connection failed: " . $conn->connect_error);
-        }
+// Проверка соединения
+if ($conn->connect_error) 
+{
+    die("Connection failed: " . $conn->connect_error);
+}
 
-        // Обработка изменения статуса заказа
-        if ($_SERVER["REQUEST_METHOD"] == "POST") 
-        {
-            $order_id = $_POST["order_id"];
-            $new_status = $_POST["new_status"];
-            $sql_update = "UPDATE Orders SET status='$new_status' WHERE id=$order_id";
-            if ($conn->query($sql_update) === TRUE) 
-            {
-                echo "Статус заказа успешно изменен";
-            } 
-            else 
-            {
-                echo "Ошибка при изменении статуса заказа: " . $conn->error;
-            }
-        }
+// Обработка изменения статуса заказа
+if ($_SERVER["REQUEST_METHOD"] == "POST") 
+{
+    $order_id = $_POST["order_id"];
+    $new_status = $_POST["new_status"];
+    $sql_update = "UPDATE Orders SET status='$new_status' WHERE id=$order_id";
+    if ($conn->query($sql_update) === TRUE) 
+    {
+        echo "Статус заказа успешно изменен";
+    } 
+    else 
+    {
+        echo "Ошибка при изменении статуса заказа: " . $conn->error;
+    }
+}
 
-        // Запрос на получение списка заказов
-        $sql = "SELECT id, status, dishes_name, time FROM Orders"; 
-        $result = $conn->query($sql);
+// Запрос на получение списка заказов
+$sql = "SELECT id, status, dishes_name, time FROM Orders"; 
+$result = $conn->query($sql);
 
         if ($result->num_rows > 0) 
         {
@@ -53,18 +53,15 @@
             {
                 echo "<tr>";
                 echo "<td>".$row["id"]."</td>";
-                // Вывод статуса заказа из базы данных
                 echo "<td>".$row["status"]."</td>";
-                
-                // Вывод блюд
                 echo "<td>".$row["dishes_name"]."</td>";
                 
                 // Получение ингредиентов для каждого блюда
-                $dish_id = $row["id"];
+                $order_id = $row["id"];
                 $sql_dish_ingredients = "SELECT i.name AS ingredient_name
                                          FROM Dish_Ingredients di
-                                         INNER JOIN ingredients i ON di.ingredient_id = i.id
-                                         WHERE di.dish_id = $dish_id";
+                                         INNER JOIN ingredients i ON di.ingredient_name = i.name
+                                         WHERE di.dish_name = '".$row["dishes_name"]."'";
                 $result_dish_ingredients = $conn->query($sql_dish_ingredients);
 
                 // Вывод ингредиентов
@@ -81,7 +78,6 @@
                     echo "нет ингредиентов";
                 }
                 echo "</td>";
-                
                 
                 echo "<td>".$row["time"]."</td>";
                 // Кнопки для изменения статуса заказа
@@ -102,7 +98,7 @@
         } 
         else 
         {
-            echo "результатов не найдено";
+            echo "<tr><td colspan='7'>результатов не найдено</td></tr>";
         }
         $conn->close();
         ?>
