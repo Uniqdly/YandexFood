@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Курьер</title>
+</head>
+<body>
+    <h1>Список заказов</h1>
+    <h2>Доступные заказы</h2>
+    <table>
+        <tr>
+            <th>Заказ</th>
+            <th>Статус заказа</th>
+            <th>Блюда</th>
+            <th>Адрес</th>
+            <th>Доставка к</th>
+            <th>Действия</th>
+        </tr>
+        <?php
+        // Подключение к базе данных
+        $conn = new mysqli("localhost", "root", "", "delivery");
+
+        // Проверка соединения
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        // Запрос на получение списка заказов на кухне
+        $sql = "SELECT id, status, dishes_name, address, time FROM Orders WHERE status = 'На кухне'";
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            // Вывод каждого заказа
+            while($row = $result->fetch_assoc()) {
+                echo "<tr>";
+                echo "<td>".$row["id"]."</td>";
+                echo "<td>".$row["status"]."</td>";
+                echo "<td>".$row["dishes_name"]."</td>";
+                echo "<td>".$row["address"]."</td>";
+                echo "<td>".$row["time"]."</td>";
+                // Кнопки для изменения статуса заказа
+                echo "<td>";
+                echo "<form action='kitchen.php' method='post'>";
+                echo "<input type='hidden' name='order_id' value='".$row["id"]."'>";
+                echo "<select name='new_status'>";
+                echo "<option value='Готов забрать заказ'>Готов забрать заказ</option>";
+                echo "<option value='Забрал заказ'>Забрал заказ</option>";
+                echo "<option value='Заказ доставлен'>Заказ доставлен</option>";
+                echo "</select>";
+                echo "<input type='submit' value='Изменить статус'>";
+                echo "</form>";
+                echo "</td>";
+                echo "<td>Курьер</td>"; // Пока что просто добавим статичное значение
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='7'>результатов не найдено</td></tr>";
+        }
+        $conn->close();
+        ?>
+    </table>
+</body>
+</html>
