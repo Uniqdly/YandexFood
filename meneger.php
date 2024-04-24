@@ -94,7 +94,6 @@
                     }
                 }
                 $ingredients_str = implode(", ", $ingredients_list);
-                
                 echo "<td><input type='text' value='" . $ingredients_str . "'></td>";
                 
                 echo "<td><input type='text' value='" . $row["description"] . "'></td>";
