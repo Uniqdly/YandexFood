@@ -33,7 +33,7 @@
         }
 
         // Запрос на получение списка заказов на кухне
-        $sql = "SELECT id, status, dishes_name, address, time FROM Orders WHERE status = 'На кухне'";
+        $sql = "SELECT id, status, dishes_name, address, time FROM Orders ";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
