@@ -6,6 +6,7 @@ $password = "";
 $dbname = "delivery";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
+session_start();
 
 // Проверка соединения
 if ($conn->connect_error) {
@@ -18,20 +19,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $deliveryTime = $_POST['delivery-time'];
     $phone = $_POST['phone'];
     $comment = $_POST['comment'];
-
-    // Установка статуса
-    $status = "Обрабатывается";
+    $user_id = $_SESSION['user_id'];
 
     // Преобразование времени в нужный формат (если требуется)
     $deliveryDateTime = date("Y-m-d H:i:s", strtotime(date("Y-m-d") . " " . $deliveryTime));
 
-    // SQL запрос для вставки данных в базу данных
-    $sql = "INSERT INTO orders (address, time, phone_number, comment, status) VALUES ('$address', '$deliveryDateTime', '$phone', '$comment', '$status')";
-
-    if ($conn->query($sql) === TRUE) {
-        echo "Заказ успешно оформлен";
-    } else {
-        echo "Ошибка: " . $sql . "<br>" . $conn->error;
+    if (isset($_SESSION['user_id'])) {
+        $user_id = $_SESSION['user_id'];
+    
+        // SQL запрос для выбора заказов пользователя с указанным статусом
+        $sql_check = "SELECT * FROM orders WHERE user_id = $user_id AND status = 'Обрабатывается'";
+        $result_check = $conn->query($sql_check);
+    
+        if ($result_check->num_rows > 0) {
+            // Если найдены заказы с указанным статусом, обновляем их данные
+            while ($row = $result_check->fetch_assoc()) {
+                $sql_update = "UPDATE orders SET address = '$address', time = '$deliveryDateTime', phone_number = '$phone', comment = '$comment' WHERE id = " . $row['id'];
+                if ($conn->query($sql_update) === TRUE) {
+                    echo "Данные заказа успешно обновлены";
+                } else {
+                    echo "Ошибка при обновлении данных заказа: " . $conn->error;
+                }
+            }
+        }
     }
 }
 
