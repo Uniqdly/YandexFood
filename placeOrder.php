@@ -11,10 +11,12 @@ $data = json_decode(file_get_contents('php://input'), true);
 foreach ($data['cart'] as $item) {
     $dishName = $item['name'];
     
-    // Выполняем запрос INSERT с указанием id_user
-    $stmt = $pdo->prepare('INSERT INTO Orders (user_id, dishes_name) VALUES (:user_id, :dishes_name)');
+    // Выполняем запрос INSERT с указанием id_user и статусом "Обрабатывается"
+    $stmt = $pdo->prepare('INSERT INTO Orders (user_id, dishes_name, status) VALUES (:user_id, :dishes_name, :status)');
     $stmt->bindParam(':user_id', $user_id);
     $stmt->bindParam(':dishes_name', $dishName);
+    $status = 'Обрабатывается';
+    $stmt->bindParam(':status', $status);
     $stmt->execute();
 }
 
