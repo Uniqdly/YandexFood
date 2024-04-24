@@ -1,10 +1,14 @@
 <?php
+session_start();
 // Подключение к базе данных
 $pdo = new PDO('mysql:host=localhost;dbname=delivery', 'root', '');
 
 // Получение всех блюд из базы данных
 $stmt = $pdo->query('SELECT * FROM Dishes');
 $dishes = $stmt->fetchAll();
+
+// Получение корзины из сессии
+$cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
@@ -73,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 </div>
 
     <button onclick="redirectToRegister()">Register</button>
+    <button onclick="redirectToLogin()">Login</button>
     <!-- Модальное окно с информацией о блюде -->
     <div id="dishModal" class="modal">
         <div class="modal-content">
@@ -114,6 +119,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     function redirectToRegister() {
         window.location.href = 'register.php';
     }
+    function redirectToLogin() {
+        window.location.href = 'Login.php';
+    }
 
     function addToCart(dishId, dishName) {
         fetch('getDishInfo.php?id=' + dishId)
@@ -147,6 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             updateCart();
             closeModal('confirmModal');
             selectedDish = null;
+            $_SESSION['cart'] = $cart;
         }
     }
 
@@ -159,6 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         }
         
         updateCart();
+        $_SESSION['cart'] = $cart;
     }
 
     function updateCart() {
@@ -218,6 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         }
     })
     .catch(error => console.error('Error:', error));
+    $_SESSION['cart'] = [];
 }
 
 

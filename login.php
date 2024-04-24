@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Авторизация успешна, начинаем сессию
         $_SESSION['cart'] = [];
         $_SESSION['user'] = $user;
+        $_SESSION['user_id'] = $user['id']; // Записываем ID пользователя в сессию
         header('Location: user.php');
         exit();
     } else {
@@ -26,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 }
+
 
 ?>
 
