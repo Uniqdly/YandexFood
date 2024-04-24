@@ -5,6 +5,17 @@ $pdo = new PDO('mysql:host=localhost;dbname=delivery', 'root', '');
 // Получение всех блюд из базы данных
 $stmt = $pdo->query('SELECT * FROM Dishes');
 $dishes = $stmt->fetchAll();
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
+    foreach ($cart as $item) {
+        $dishName = $item['name'];
+        $stmt = $pdo->prepare('INSERT INTO Orders (dishes_name) VALUES (:dishes_name)');
+        $stmt->bindParam(':dishes_name', $dishName);
+        $stmt->execute();
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -81,9 +92,6 @@ $dishes = $stmt->fetchAll();
     </div>
 </div>
 
-
-
-
     <!-- Кнопка "Корзина" -->
     <button id="cartButton" onclick="openCart()">Корзина</button>
 
@@ -93,123 +101,127 @@ $dishes = $stmt->fetchAll();
         <span class="close" onclick="closeModal('cartModal')">&times;</span>
         <h2>Корзина</h2>
         <ul id="cartItems"></ul>
+        
         <button id="orderButton" onclick="placeOrder()">Заказать</button>
     </div>
 </div>
 
+<script>
+    let selectedDish = null;
+    let cart = [];
+    let cartItems = [];
 
-    <script>
-        function redirectToRegister() {
-    window.location.href = 'register.php';
-}
+    function redirectToRegister() {
+        window.location.href = 'register.php';
+    }
 
-function placeOrder() {
-    // Подготовка списка блюд для передачи в URL
-    const selectedDishesIds = cart.map(item => item.id).join(',');
-    
-    // Перенаправление на страницу заказа с передачей списка блюд через параметр URL
-    window.location.href = 'order.php?dishes=' + selectedDishesIds;
-}
+    function addToCart(dishId, dishName) {
+        fetch('getDishInfo.php?id=' + dishId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error:', data.error);
+                } else {
+                    selectedDish = data;
+                    document.getElementById('confirmDishName').textContent = selectedDish.name;
+                    document.getElementById('confirmDishDescription').textContent = selectedDish.description;
+                    document.getElementById('confirmModal').style.display = 'block';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
 
-
-        
-
-        function addToCart(dishId, dishName) {
-    fetch('getDishInfo.php?id=' + dishId)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                console.error('Error:', data.error);
+    function confirmPurchase() {
+        if (selectedDish) {
+            const existingItemIndex = cart.findIndex(item => item.id === selectedDish.id);
+            
+            if (existingItemIndex !== -1) {
+                cart[existingItemIndex].quantity += 1;
+                cartItems[existingItemIndex].quantity += 1;
             } else {
-                selectedDish = data;
-                document.getElementById('confirmDishName').textContent = selectedDish.name;
-                document.getElementById('confirmDishDescription').textContent = selectedDish.description;
-                document.getElementById('confirmModal').style.display = 'block';
+                selectedDish.quantity = 1;
+                cart.push(selectedDish);
+                cartItems.push({ id: selectedDish.id, name: selectedDish.name, quantity: 1 });
             }
-        })
-        .catch(error => console.error('Error:', error));
-}
+            
+            updateCart();
+            closeModal('confirmModal');
+            selectedDish = null;
+        }
+    }
 
-
-let cart = [];
-let cartItems = [];
-
-function confirmPurchase() {
-    if (selectedDish) {
-        // Проверяем, есть ли выбранный продукт уже в корзине
-        const existingItemIndex = cart.findIndex(item => item.id === selectedDish.id);
+    function removeFromCart(index) {
+        cart[index].quantity -= 1;
         
-        if (existingItemIndex !== -1) {
-            // Если продукт уже есть в корзине, увеличиваем его количество
-            cart[existingItemIndex].quantity += 1;
-            cartItems[existingItemIndex].quantity += 1;
-        } else {
-            // Если продукта нет в корзине, добавляем его
-            selectedDish.quantity = 1;
-            cart.push(selectedDish);
-            cartItems.push({ id: selectedDish.id, name: selectedDish.name, quantity: 1 });
+        if (cart[index].quantity === 0) {
+            cart.splice(index, 1);
+            cartItems.splice(index, 1);
         }
         
         updateCart();
-        closeModal('confirmModal');
-        selectedDish = null; // Сброс выбранного блюда после добавления в корзину
     }
-}
 
-function removeFromCart(index) {
-    cart[index].quantity -= 1;
-    
-    if (cart[index].quantity === 0) {
-        cart.splice(index, 1);
+    function updateCart() {
+        const cartItemsElement = document.getElementById('cartItems');
+        cartItemsElement.innerHTML = '';
+        
+        cartItems.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.classList.add('cartItem');
+            
+            const itemName = document.createElement('span');
+            itemName.textContent = item.name + ' x' + item.quantity;
+            
+            const removeButton = document.createElement('span');
+            removeButton.textContent = '-';
+            removeButton.classList.add('remove');
+            removeButton.onclick = () => removeFromCart(index);
+            
+            li.appendChild(itemName);
+            li.appendChild(removeButton);
+            
+            cartItemsElement.appendChild(li);
+        });
     }
-    
-    updateCart();
-}
 
+    function openCart() {
+        document.getElementById('cartModal').style.display = 'block';
+        updateCart();
+    }
 
-function updateCart() {
-    const cartItemsElement = document.getElementById('cartItems');
-    cartItemsElement.innerHTML = '';
-    
-    cartItems.forEach((item, index) => {
-        const li = document.createElement('li');
-        li.classList.add('burger');
-        
-        const itemName = document.createElement('span');
-        itemName.textContent = item.name + ' x' + item.quantity;
-        
-        const removeButton = document.createElement('span');
-        removeButton.textContent = '-';
-        removeButton.classList.add('remove');
-        removeButton.onclick = () => removeFromCart(index);
-        
-        li.appendChild(itemName);
-        li.appendChild(removeButton);
-        
-        cartItemsElement.appendChild(li);
-    });
-}н
-
-
-        function openCart() {
-            document.getElementById('cartModal').style.display = 'block';
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+    function redirectToOrder() {
+        window.location.href = 'Order.php';
+    }
+    function placeOrder() {
+    fetch('placeOrder.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cart: cart }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Очистка корзины и обновление отображения
+            cart = [];
+            cartItems = [];
             updateCart();
+            closeModal('cartModal');
+            redirectToOrder();
+            
+        } else {
+            alert('Произошла ошибка при размещении заказа.');
         }
+    })
+    .catch(error => console.error('Error:', error));
+}
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-        
-    </script>
-    <!-- Модальное окно подтверждения покупки -->
-<div id="confirmModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('confirmModal')">&times;</span>
-        <h2>Confirm Purchase</h2>
-        <p>Are you sure you want to add this item to your cart?</p>
-        <button onclick="confirmPurchase()">Confirm</button>
-    </div>
-</div>
+
+</script>
 
 </body>
 </html>

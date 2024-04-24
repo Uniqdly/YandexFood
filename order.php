@@ -1,3 +1,43 @@
+<?php
+// Подключение к базе данных
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "delivery";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Проверка соединения
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Получение данных из формы
+    $address = $_POST['address'];
+    $deliveryTime = $_POST['delivery-time'];
+    $phone = $_POST['phone'];
+    $comment = $_POST['comment'];
+
+    // Установка статуса
+    $status = "Обрабатывается";
+
+    // Преобразование времени в нужный формат (если требуется)
+    $deliveryDateTime = date("Y-m-d H:i:s", strtotime(date("Y-m-d") . " " . $deliveryTime));
+
+    // SQL запрос для вставки данных в базу данных
+    $sql = "INSERT INTO orders (address, time, phone_number, comment, status) VALUES ('$address', '$deliveryDateTime', '$phone', '$comment', '$status')";
+
+    if ($conn->query($sql) === TRUE) {
+        echo "Заказ успешно оформлен";
+    } else {
+        echo "Ошибка: " . $sql . "<br>" . $conn->error;
+    }
+}
+
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,18 +48,9 @@
 <body>
     <h1>Оформление заказа</h1>
     
-    <form action="/submit_order" method="post">
-        <label for="address">Адрес:</label>
+    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+        <label for="address">Адрес(Улица, дом, квартира):</label>
         <input type="text" id="address" name="address" required><br><br>
-        
-        <label for="street">Улица:</label>
-        <input type="text" id="street" name="street" required><br><br>
-        
-        <label for="house">Дом:</label>
-        <input type="text" id="house" name="house" required><br><br>
-        
-        <label for="apartment">Квартира:</label>
-        <input type="text" id="apartment" name="apartment" required><br><br>
         
         <label for="delivery-time">Время доставки:</label>
         <input type="time" id="delivery-time" name="delivery-time" min="00:00" max="23:59" required><br><br>
@@ -30,11 +61,11 @@
         
         <label for="comment">Комментарий к заказу:</label><br>
         <textarea id="comment" name="comment" rows="4" cols="50"></textarea><br><br>
-        <h2>Выбранные блюда:</h2>
-        <ul id="selectedDishes"></ul>
+
 
         
         <button type="submit">Заказать</button>
     </form>
+ 
 </body>
 </html>
