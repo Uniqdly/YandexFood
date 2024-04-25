@@ -4,6 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Менеджер блюд</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            // Функция для проверки статуса заказа
+            function checkOrderStatus() {
+                $.ajax({
+                    url: 'check_status.php',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        // Обновляем статус на странице
+                        $('#order-status').text('Статус: ' + response.status);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ошибка при получении статуса заказа:', error);
+                    }
+                });
+            }
+
+            // Вызываем функцию для проверки статуса при загрузке страницы
+            checkOrderStatus();
+
+            // Устанавливаем интервал для автоматической проверки статуса каждые 5 секунд
+            setInterval(checkOrderStatus, 5000);
+        });
+    </script>
 </head>
 <body>
     <h1>Менеджер блюд</h1>
