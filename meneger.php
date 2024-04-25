@@ -106,18 +106,54 @@
                     }
                 }
 
+                // Обработка нажатия кнопки "Сохранить" для каждой строки в таблице блюд
+                if(isset($_POST["save_dish"])) {
+                    $dish_id = $_POST["dish_id"];
+                    $new_name = $_POST["new_name"];
+                    $new_ingredients = $_POST["new_ingredients"];
+                    $new_description = $_POST["new_description"];
+                    $new_price = $_POST["new_price"];
+                    // Дополнительно получите новые значения для других полей, если они могут изменяться
+                    // Например, $new_ingredients = $_POST["new_ingredients"];
+                    // и так далее...
+
+                    // Выполните SQL-запрос для обновления данных блюда
+                    $sql_update_dish = "UPDATE Dishes SET name='$new_name' WHERE id=$dish_id";
+                    $sql_update_ingredients = "UPDATE Dishes SET name='$new_ingredients' WHERE id=$dish_id";
+                    $sql_update_description = "UPDATE Dishes SET name='$new_description' WHERE id=$dish_id";
+                    $sql_update_price = "UPDATE Dishes SET name='$new_price' WHERE id=$dish_id";
+                    // Дополнительно добавьте другие поля для обновления
+                    // Например, $sql_update_dish = "UPDATE Dishes SET name='$new_name', ingredients='$new_ingredients' WHERE id=$dish_id";
+
+                    if ($conn->query($sql_update_dish) === TRUE) {
+                        echo "Изменения сохранены успешно.";
+                    } else {
+                        echo "Ошибка при сохранении изменений: " . $conn->error;
+                    }
+                }
+
                 echo "<td><input type='text' value='" . $ingredients_str . "'></td>";
                 
                 echo "<td><input type='text' value='" . $row["description"] . "'></td>";
                 echo "<td><input type='text' value='" . $row["price"] . "'></td>";
+                echo "<td>";
+                echo "<td>";
+                echo "<form action='" . $_SERVER['PHP_SELF'] . "' method='post'>";
+                echo "<input type='hidden' name='dish_id' value='" . $row["id"] . "'>";
+                echo "<button type='submit' name='save_dish'>Сохранить</button>";
+                echo "</form>";
+                echo "</td>";
+
                 echo "<td>";
                 echo "<form action='" . $_SERVER['PHP_SELF'] . "' method='post'>";
                 echo "<input type='hidden' name='dish_id' value='" . $row["id"] . "'>";
                 echo "<button type='submit' name='delete_dish'>Удалить</button>";
                 echo "</form>";
                 echo "</td>";
-                echo "</tr>";
 
+                echo "</tr>";
+                echo "</td>";
+                echo "</tr>";
                 
             }
         } else {
