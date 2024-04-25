@@ -87,7 +87,7 @@ $conn->close();
 
     
         <button onclick="redirectToMenu()">Вернуться в меню</button>
-        <button onclick="logout()">Logout</button>
+        <button onclick="logout()">Выход</button>
     </form>
  <script>
     

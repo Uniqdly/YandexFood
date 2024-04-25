@@ -63,7 +63,9 @@
 <div class="container mt-5">
         <h1 class="text-center">Список заказов</h1>
         <h2 class="mt-4">Доступные заказы</h2>
-        <button class="btn btn-danger float-right mb-3" onclick="logout()">Выход</button>
+        <div class="text-right mb-3">
+            <button class="btn btn-danger" onclick="logout()">Выход</button>
+        </div>
         <table class="table table-bordered">
             <thead class="thead-light">
                 <tr>

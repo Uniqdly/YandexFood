@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Restaurant Menu</title>
+    <title>Менюшка</title>
     <style>
         /* Стили для модального окна */
         .modal {
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
 <?php if ($loggedIn): ?>
         <!-- Кнопка "Logout" -->
-        <button onclick="logout()">Logout</button>
+        <button onclick="logout()">Выход</button>
         <!-- Кнопка "Мои заказы" -->
         <button onclick="redirectToMyOrders()">Мои заказы</button>
     <?php else: ?>

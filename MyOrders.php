@@ -20,41 +20,75 @@ $orders = $stmt->fetchAll();
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Orders</title>
+    <title>Мои заказы</title>
+    <!-- Подключение стилей -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-<table>
-    <tr>
-        <th>Статус</th>
-    </tr>
-    <?php foreach ($orders as $order): ?>
+    <table>
         <tr>
-            <td><?php echo $order['status']; ?></td>
+            <th>Статус</th>
         </tr>
-    <?php endforeach; ?>
-</table>
+        <?php foreach ($orders as $order): ?>
+            <tr>
+                <td><?php echo $order['status']; ?></td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
 
     <!-- Кнопка "Logout" -->
-    <button onclick="logout()">Logout</button>
     <button onclick="GoMenu()">В меню</button>
-        <script>
-
-        function GoMenu() 
-        {
+    <button onclick="logout()">Выход</button>
+    <script>
+        function GoMenu() {
             // Перенаправление на страницу меню
             window.location.href = 'User.php';
         }
 
-
-            function logout() {
-    // Очистка сессии и перенаправление на страницу выхода
-    fetch('logout.php')
-        .then(() => {
-            window.location.href = 'logout.php';
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-        </script>
+        function logout() {
+            // Очистка сессии и перенаправление на страницу выхода
+            fetch('logout.php')
+                .then(() => {
+                    window.location.href = 'logout.php';
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
 </body>
 </html>
+

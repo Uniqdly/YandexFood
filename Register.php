@@ -55,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
             <a href="login.php" class="ml-2">Уже есть аккаунт?</a>
+            <a href="user.php" class="ml-2">Вернуться в меню</a>
         </form>
     </div>
 </body>

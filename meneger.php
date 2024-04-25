@@ -18,14 +18,15 @@ if (isset($_POST['submit'])) {
     $ingredients = $_POST["ingredients_name"];
     $description = $_POST["description"];
     $price = $_POST["price"];
-    $photo = $_FILES["photo"]["tmp_name"];
+    $photo_link = $_POST['photo']; // Получаем ссылку на фото из формы
 
-    // Вставка данных о блюде в таблицу Dishes
-    $sql = "INSERT INTO Dishes (name, ingredients_name, description, price, photo) VALUES (?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssis", $dish_name, $ingredients, $description, $price, $photo);
-    $stmt->execute();
-    $stmt->close();
+// Добавляем значение ссылки на фото в запрос для вставки данных в таблицу Dishes
+$sql = "INSERT INTO Dishes (name, ingredients_name, description, price, photo) VALUES (?, ?, ?, ?, ?)";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("sssis", $dish_name, $ingredients, $description, $price, $photo_link);
+$stmt->execute();
+$stmt->close();
+
 
     // Получаем ID добавленного блюда
     $dish_id = $conn->insert_id;
@@ -86,8 +87,8 @@ if (isset($_POST['submit'])) {
                         // Обновляем статус на странице
                         $('#order-status').text('Статус: ' + response.status);
                     },
-                    error: function(xhr, status, error) {
-                        console.error('Ошибка при получении статуса заказа:', error);
+                    error: function(xhr, status) {
+                        console.error(' ');
                     }
                 });
             }
@@ -123,8 +124,8 @@ if (isset($_POST['submit'])) {
                 <input type="text" class="form-control" id="price" name="price" required>
             </div>
             <div class="form-group">
-                <label for="photo">Фото:</label>
-                <input type="file" class="form-control-file" id="photo" name="photo">
+                <label for="photo">Ссылка на фото:</label>
+                <input type="text" class="form-control-file" id="photo" name="photo">
             </div>
             <button type="submit" name="submit" class="btn btn-primary">Добавить блюдо</button>
         </form>
