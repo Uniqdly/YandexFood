@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     <div class="row">
         <?php foreach ($dishes as $dish): ?>
             <div class="card" style="width: 18rem;">
-                <img src="<?php echo $dish['image_url']; ?>" class="card-img-top" alt="<?php echo $dish['name']; ?>">
+                <img src="<?php echo $dish['photo']; ?>" class="card-img-top" alt="<?php echo $dish['name']; ?>">
                 <div class="card-body">
                     <h5 class="card-title"><?php echo $dish['name']; ?></h5>
                     <p class="card-text"><?php echo $dish['description']; ?></p>
@@ -228,10 +228,15 @@ function updateCart() {
 }
 
 
-    function openCart() {
+function openCart() {
+    if (cart.length > 0) {
         document.getElementById('cartModal').style.display = 'block';
         updateCart();
+    } else {
+        alert('Корзина пуста. Добавьте товары перед оформлением заказа.');
     }
+}
+
 
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = 'none';
