@@ -155,21 +155,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             updateCart();
             closeModal('confirmModal');
             selectedDish = null;
-            $_SESSION['cart'] = $cart;
+            // Сохраняем корзину в сессию
+            sessionStorage.setItem('cart', JSON.stringify(cart));
         }
     }
 
     function removeFromCart(index) {
-        cart[index].quantity -= 1;
-        
-        if (cart[index].quantity === 0) {
-            cart.splice(index, 1);
-            cartItems.splice(index, 1);
-        }
-        
-        updateCart();
-        $_SESSION['cart'] = $cart;
+    cart[index].quantity -= 1;
+    
+    if (cart[index].quantity === 0) {
+        cart.splice(index, 1);
+        cartItems.splice(index, 1);
     }
+    
+    updateCart();
+    // Сохраняем обновленную корзину в сессию
+    sessionStorage.setItem('cart', JSON.stringify(cart));
+}
+
 
     function updateCart() {
         const cartItemsElement = document.getElementById('cartItems');
