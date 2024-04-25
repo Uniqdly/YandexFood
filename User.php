@@ -1,6 +1,9 @@
 <?php
 session_start();
 // Подключение к базе данных
+// Проверка авторизации пользователя
+$loggedIn = isset($_SESSION['user_id']);
+
 $pdo = new PDO('mysql:host=localhost;dbname=delivery', 'root', '');
 
 // Получение всех блюд из базы данных
@@ -76,8 +79,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     </div>
 </div>
 
-    <button onclick="redirectToRegister()">Register</button>
-    <button onclick="redirectToLogin()">Login</button>
+<?php if ($loggedIn): ?>
+        <!-- Кнопка "Logout" -->
+        <button onclick="logout()">Logout</button>
+        <!-- Кнопка "Мои заказы" -->
+        <button onclick="redirectToMyOrders()">Мои заказы</button>
+    <?php else: ?>
+        <!-- Кнопка "Register" -->
+        <button onclick="redirectToRegister()">Register</button>
+        <!-- Кнопка "Login" -->
+        <button onclick="redirectToLogin()">Login</button>
+    <?php endif; ?>
     <!-- Модальное окно с информацией о блюде -->
     <div id="dishModal" class="modal">
         <div class="modal-content">
@@ -93,12 +105,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         <h2>Вы точно хотите добавить это в корзину?</h2>
         <h3 id="confirmDishName"></h3>
         <p id="confirmDishDescription"></p>
-        <button onclick="confirmPurchase()">Добавить в корзину</button>
+        <?php if ($loggedIn): ?> <button onclick="confirmPurchase()">Добавить в корзину</button>
+            <?php else: ?>
+    <p>Чтобы добавить в корзину авторизуйтесь</p>
+<?php endif; ?>
     </div>
 </div>
 
-    <!-- Кнопка "Корзина" -->
+   
+    <?php if ($loggedIn): ?>
     <button id="cartButton" onclick="openCart()">Корзина</button>
+<?php endif; ?>
 
     <!-- Модальное окно с корзиной -->
 <div id="cartModal" class="modal">
@@ -140,25 +157,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     }
 
     function confirmPurchase() {
-        if (selectedDish) {
-            const existingItemIndex = cart.findIndex(item => item.id === selectedDish.id);
-            
-            if (existingItemIndex !== -1) {
-                cart[existingItemIndex].quantity += 1;
-                cartItems[existingItemIndex].quantity += 1;
-            } else {
-                selectedDish.quantity = 1;
-                cart.push(selectedDish);
-                cartItems.push({ id: selectedDish.id, name: selectedDish.name, quantity: 1 });
-            }
-            
-            updateCart();
-            closeModal('confirmModal');
-            selectedDish = null;
-            // Сохраняем корзину в сессию
-            sessionStorage.setItem('cart', JSON.stringify(cart));
+    if (selectedDish) {
+        const existingItemIndex = cart.findIndex(item => item.id === selectedDish.id);
+        
+        if (existingItemIndex !== -1) {
+            cart[existingItemIndex].quantity += 1;
+            cartItems[existingItemIndex].quantity += 1;
+        } else {
+            selectedDish.quantity = 1;
+            cart.push(selectedDish);
+            cartItems.push({ id: selectedDish.id, name: selectedDish.name, quantity: 1, price: selectedDish.price });
         }
+        
+        updateCart();
+        closeModal('confirmModal');
+        selectedDish = null;
+        // Сохраняем корзину в сессию
+        sessionStorage.setItem('cart', JSON.stringify(cart));
     }
+}
+
 
     function removeFromCart(index) {
     cart[index].quantity -= 1;
@@ -181,12 +199,16 @@ function updateCart() {
     const cartItemsElement = document.getElementById('cartItems');
     cartItemsElement.innerHTML = '';
     
+    let totalAmount = 0;
+    
     cartItems.forEach((item, index) => {
         const li = document.createElement('li');
         li.classList.add('cartItem');
         
         const itemName = document.createElement('span');
-        itemName.textContent = item.name + ' x' + item.quantity;
+        itemName.textContent = item.name + ' x' + item.quantity + ' - $' + (item.price * item.quantity);
+        
+        totalAmount += item.price * item.quantity;
         
         const removeButton = document.createElement('span');
         removeButton.textContent = '-';
@@ -198,6 +220,11 @@ function updateCart() {
         
         cartItemsElement.appendChild(li);
     });
+    
+    // Отображение общей суммы
+    const totalElement = document.createElement('p');
+    totalElement.textContent = 'Итог: ' + totalAmount + '₽';
+    cartItemsElement.appendChild(totalElement);
 }
 
 
@@ -238,6 +265,18 @@ function updateCart() {
     $_SESSION['cart'] = [];
 }
 
+function logout() {
+    // Очистка сессии и перенаправление на страницу выхода
+    fetch('logout.php')
+        .then(() => {
+            window.location.href = 'logout.php';
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function redirectToMyOrders() {
+    window.location.href = 'MyOrders.php';
+}
 
 </script>
 
