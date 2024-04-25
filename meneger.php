@@ -95,12 +95,30 @@
                 }
                 $ingredients_str = implode(", ", $ingredients_list);
                 
+                // Обработка нажатия кнопки "Удалить" для каждой строки в таблице блюд
+                if(isset($_POST["delete_dish"])) {
+                    $dish_id = $_POST["dish_id"];
+                    $sql_delete_dish = "DELETE FROM Dishes WHERE id=$dish_id";
+                    if ($conn->query($sql_delete_dish) === TRUE) {
+                        echo "";
+                    } else {
+                        echo "Ошибка при удалении блюда: " . $conn->error;
+                    }
+                }
+
                 echo "<td><input type='text' value='" . $ingredients_str . "'></td>";
                 
                 echo "<td><input type='text' value='" . $row["description"] . "'></td>";
                 echo "<td><input type='text' value='" . $row["price"] . "'></td>";
-                echo "<td><button>Сохранить</button> <button>Удалить</button></td>";
+                echo "<td>";
+                echo "<form action='" . $_SERVER['PHP_SELF'] . "' method='post'>";
+                echo "<input type='hidden' name='dish_id' value='" . $row["id"] . "'>";
+                echo "<button type='submit' name='delete_dish'>Удалить</button>";
+                echo "</form>";
+                echo "</td>";
                 echo "</tr>";
+
+                
             }
         } else {
             echo "<tr><td colspan='5'>Нет доступных блюд в меню.</td></tr>";
@@ -130,6 +148,22 @@
             die("Connection failed: " . $conn->connect_error);
         }
 
+        // Обработка изменения статуса заказа
+        if ($_SERVER["REQUEST_METHOD"] == "POST") 
+        {
+            $order_id = $_POST["order_id"];
+            $new_status = $_POST["new_status"];
+            $sql_update = "UPDATE Orders SET status='$new_status' WHERE id=$order_id";
+            if ($conn->query($sql_update) === TRUE) 
+            {
+                echo " ";
+            } 
+            else 
+            {
+                echo "Ошибка при изменении статуса заказа: " . $conn->error;
+            }
+        }
+
         $sql = "SELECT * FROM Orders";
         $result = $conn->query($sql);
 
@@ -144,19 +178,20 @@
                 echo "<td>" . $row["time"] . "</td>";
                 echo "<td>" . $row["phone_number"] . "</td>";
                 echo "<td>" . $row["comment"] . "</td>";
-                echo "<td>
-                        <form action='update_status.php' method='post'>
-                            <input type='hidden' name='order_id' value='" . $row["id"] . "'>
-                            <select name='status'>
-                                <option value='В обработке'>В обработке</option>
-                                <option value='Выполняется'>Выполняется</option>
-                                <option value='Доставляется'>Доставляется</option>
-                                <option value='Доставлено'>Доставлено</option>
-                            </select>
-                            <input type='submit' name='update_status' value='Обновить'>
-                        </form>
-                      </td>";
-                echo "</tr>";
+                // Кнопки для изменения статуса заказа
+                echo "<td>";
+                echo "<form action='meneger.php' method='post'>";
+                echo "<input type='hidden' name='order_id' value='".$row["id"]."'>";
+                echo "<select name='new_status'>";
+                echo "<option value='Обрабатывается'>Обрабатывается</option>";
+                echo "<option value='На кухне'>На кухне</option>";
+                echo "<option value='Нашелся курьер'>Нашелся курьер</option>";
+                echo "<option value='Ожидает курьера'>Ожидает курьера</option>";
+                echo "<option value='Передано курьеру'>Передано курьеру</option>";
+                echo "<option value='Заказ доставлен'>Заказ доставлен</option>";
+                echo "</select>";
+                echo "<input type='submit' value='Изменить статус'>";
+                echo "</form>";
             }
         } else {
             echo "<tr><td colspan='9'>Нет доступных заказов.</td></tr>";
