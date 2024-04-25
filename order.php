@@ -19,6 +19,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Получение данных из формы
     $address = $_POST['address'];
@@ -42,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             while ($row = $result_check->fetch_assoc()) {
                 $sql_update = "UPDATE orders SET address = '$address', time = '$deliveryDateTime', phone_number = '$phone', comment = '$comment' WHERE id = " . $row['id'];
                 if ($conn->query($sql_update) === TRUE) {
-                    echo "Данные заказа успешно обновлены";
+                    
                 } else {
                     echo "Ошибка при обновлении данных заказа: " . $conn->error;
                 }
@@ -80,14 +81,16 @@ $conn->close();
 
 
         
-        <button type="submit">Заказать</button>
+        <button type="submit" >Заказать</button>
 
-        <!-- Кнопка "Мои заказы" -->
-        <button onclick="redirectToMyOrders()">Мои заказы</button>
+        <button onclick = "redirectToMyOrders()">Мои заказы</button>
+
+    
         <button onclick="redirectToMenu()">Вернуться в меню</button>
         <button onclick="logout()">Logout</button>
     </form>
  <script>
+    
     function redirectToMyOrders() 
 {
     window.location.href = 'MyOrders.php';

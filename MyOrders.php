@@ -11,7 +11,7 @@ $userId = $_SESSION['user_id'];
 
 $pdo = new PDO('mysql:host=localhost;dbname=delivery', 'root', '');
 
-$stmt = $pdo->prepare('SELECT DISTINCT address, phone_number, status FROM Orders WHERE user_id = :user_id');
+$stmt = $pdo->prepare('SELECT * FROM Orders WHERE user_id = :user_id');
 $stmt->bindParam(':user_id', $userId);
 $stmt->execute();
 $orders = $stmt->fetchAll();
@@ -23,52 +23,30 @@ $orders = $stmt->fetchAll();
     <title>My Orders</title>
 </head>
 <body>
-    <h1>Мои заказы</h1>
-    <table>
+<table>
+    <tr>
+        <th>Статус</th>
+    </tr>
+    <?php foreach ($orders as $order): ?>
         <tr>
-            <th>Блюда</th>
-            <th>Статус</th>
-            <th>Адрес</th>
-            <th>Время</th>
-            <th>Номер телефона</th>
-            <th>Комментарий</th>
+            <td><?php echo $order['status']; ?></td>
         </tr>
-        <?php foreach ($orders as $order): ?>
-            <tr>
-                <td>
-                    <?php
-                    $stmt = $pdo->prepare('SELECT dishes_name FROM Orders WHERE user_id = :user_id AND address = :address AND phone_number = :phone_number AND status = :status');
-                    $stmt->bindParam(':user_id', $userId);
-                    $stmt->bindParam(':address', $order['address']);
-                    $stmt->bindParam(':phone_number', $order['phone_number']);
-                    $stmt->bindParam(':status', $order['status']);
-                    $stmt->execute();
-                    $dishes = $stmt->fetchAll();
+    <?php endforeach; ?>
+</table>
 
-                    foreach ($dishes as $dish) {
-                        echo $dish['dishes_name'] . '<br>';
-                    }
-                    ?>
-                </td>
-                <td><?php echo $order['status']; ?></td>
-                <td><?php echo $order['address']; ?></td>
-                <td><?php echo $order['time']; ?></td>
-                <td><?php echo $order['phone_number']; ?></td>
-                <td><?php echo $order['comment']; ?></td>
-            </tr>
-        <?php endforeach; ?>
-    </table>
+    <!-- Кнопка "Logout" -->
+    <button onclick="logout()">Logout</button>
+    <button onclick="GoMenu()">В меню</button>
+        <script>
 
-        <button onclick="redirectToMenu()">Вернуться в меню</button>
-        <button onclick="logout()">Logout</button>
-    </form>
- <script>
-   
-function redirectToMenu() 
-{
-    window.location.href = 'user.php';
-}
-function logout() {
+        function GoMenu() 
+        {
+            // Перенаправление на страницу меню
+            window.location.href = 'User.php';
+        }
+
+
+            function logout() {
     // Очистка сессии и перенаправление на страницу выхода
     fetch('logout.php')
         .then(() => {
@@ -76,6 +54,7 @@ function logout() {
         })
         .catch(error => console.error('Error:', error));
 }
- </script>
+
+        </script>
 </body>
 </html>
