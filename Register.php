@@ -2,22 +2,28 @@
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Обработка данных формы регистрации
-    $username = $_POST['name']; // Используем введенное имя как логин
+    $username = $_POST['name'];
     $password = $_POST['password'];
-    $role = 'user'; // Устанавливаем роль по умолчанию
-    // Дополнительные данные пользователя, если необходимо
+    $role = 'user';
 
-    // Подключение к базе данных
     $pdo = new PDO('mysql:host=localhost;dbname=delivery', 'root', '');
 
-    // Подготовка и выполнение запроса на добавление нового пользователя
-    $stmt = $pdo->prepare('INSERT INTO Users (login, password, role) VALUES (:login, :password, :role)'); 
-    $stmt->execute(['login' => $username, 'password' => password_hash($password, PASSWORD_DEFAULT), 'role' => $role]); 
+    // Проверка существования пользователя с таким логином
+    $stmt = $pdo->prepare('SELECT * FROM Users WHERE login = :login');
+    $stmt->execute(['login' => $username]);
+    $user = $stmt->fetch();
 
-    $_SESSION['message'] = 'Регистрация прошла успешно. Теперь вы можете войти.';
-    header('Location: login.php');
-    exit();
+    if ($user) {
+        $_SESSION['message'] = 'Пользователь с таким логином уже существует.';
+    } else {
+        // Добавление нового пользователя
+        $stmt = $pdo->prepare('INSERT INTO Users (login, password, role) VALUES (:login, :password, :role)');
+        $stmt->execute(['login' => $username, 'password' => password_hash($password, PASSWORD_DEFAULT), 'role' => $role]);
+
+        $_SESSION['message'] = 'Регистрация прошла успешно. Теперь вы можете войти.';
+        header('Location: login.php');
+        exit();
+    }
 }
 
 ?>
@@ -38,20 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="text" name="name" required><br>
         <label for="password">Пароль:</label>
         <input type="password" name="password" required><br>
-        <!-- Дополнительные поля для данных пользователя -->
         <button type="submit">Зарегистрироваться</button>
-        <button onclick="redirectToLogin()">Вход</button>
-        <button onclick="redirectToMenu()">Вернуться в меню</button>
+        <a href="login.php">Уже есть аккаунт?</a>
     </form>
 </body>
 </html>
-
-<script>
-    function redirectToLogin() {
-            window.location.href = 'Login.php';
-        }
-        function redirectToMenu() 
-    {
-        window.location.href = 'user.php';
-    }
-</script>
