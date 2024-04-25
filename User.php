@@ -86,9 +86,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         <button onclick="redirectToMyOrders()">Мои заказы</button>
     <?php else: ?>
         <!-- Кнопка "Register" -->
-        <button onclick="redirectToRegister()">Register</button>
+        <button onclick="redirectToRegister()">Регистрация</button>
         <!-- Кнопка "Login" -->
-        <button onclick="redirectToLogin()">Login</button>
+        <button onclick="redirectToLogin()">Вход</button>
     <?php endif; ?>
     <!-- Модальное окно с информацией о блюде -->
     <div id="dishModal" class="modal">

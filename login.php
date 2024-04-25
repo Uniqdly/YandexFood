@@ -44,8 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-
-
 ?>
 
 <!DOCTYPE html>
@@ -65,6 +63,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label for="password">Пароль:</label>
         <input type="password" name="password" required><br>
         <button type="submit">Войти</button>
+        <button onclick="redirectToRegister()">Регистрация</button>
+        <button onclick="redirectToMenu()">Вернуться в меню</button>
     </form>
 </body>
 </html>
+
+
+<script>
+    function redirectToRegister() {
+            window.location.href = 'register.php';
+        } 
+        function redirectToMenu() 
+    {
+        window.location.href = 'user.php';
+    }
+</script>

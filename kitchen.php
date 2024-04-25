@@ -4,6 +4,14 @@
     <title>Кухня</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
+        function logout() {
+            // Очистка сессии и перенаправление на страницу выхода
+            fetch('logout.php')
+                .then(() => {
+                    window.location.href = 'logout.php';
+                })
+                .catch(error => console.error('Error:', error));
+        }
         $(document).ready(function(){
             // Функция для проверки статуса заказа
             function checkOrderStatus() {
@@ -31,6 +39,7 @@
 </head>
 <body>
     <h1>Список заказов</h1>
+    <button onclick="logout()">Выход</button>
     <h2>Заказы в стадии подготовки</h2>
     <table>
         <tr>

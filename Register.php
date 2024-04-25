@@ -40,6 +40,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="password" name="password" required><br>
         <!-- Дополнительные поля для данных пользователя -->
         <button type="submit">Зарегистрироваться</button>
+        <button onclick="redirectToLogin()">Вход</button>
+        <button onclick="redirectToMenu()">Вернуться в меню</button>
     </form>
 </body>
 </html>
+
+<script>
+    function redirectToLogin() {
+            window.location.href = 'Login.php';
+        }
+        function redirectToMenu() 
+    {
+        window.location.href = 'user.php';
+    }
+</script>

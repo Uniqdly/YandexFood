@@ -3,6 +3,14 @@
 <head>
     <title>Курьер</title>
     <script>
+        function logout() {
+            // Очистка сессии и перенаправление на страницу выхода
+            fetch('logout.php')
+                .then(() => {
+                    window.location.href = 'logout.php';
+                })
+                .catch(error => console.error('Error:', error));
+        }
         function toggleSelectButton(orderId) {
             // Скрыть кнопку "Выбрать"
             document.getElementById('select_button_' + orderId).style.display = 'none';
@@ -40,6 +48,7 @@
 <body>
     <h1>Список заказов</h1>
     <h2>Доступные заказы</h2>
+    <button onclick="logout()">Выход</button>
     <table>
         <tr>
             <th>Заказ</th>

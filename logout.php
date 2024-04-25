@@ -14,6 +14,6 @@ $_SESSION = array();
 session_destroy();
 
 // Перенаправление на главную страницу или другую страницу
-header("Location: user.php");
+header("Location: login.php");
 exit;
 ?>
