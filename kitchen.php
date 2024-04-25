@@ -50,6 +50,13 @@
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
         }
+        session_start();
+
+if (isset($_SESSION['role']) && $_SESSION['role'] !== 'cook') {
+    // Роль пользователя не является "cook", перенаправляем на страницу логина
+    header('Location: login.php');
+    exit();
+}
 
         // Обработка изменения статуса заказа
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -64,7 +71,7 @@
         }
 
         // Запрос на получение списка заказов
-        $sql = "SELECT id, status, dishes_name, time FROM Orders"; 
+        $sql = "SELECT id, status, dishes_name, courier_login, time FROM Orders"; 
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
@@ -75,6 +82,7 @@
                 echo "<td>".$row["id"]."</td>";
                 echo "<td>".$row["status"]."</td>";
                 echo "<td>".$row["dishes_name"]."</td>";
+                
                 
                 // Получение ингредиентов для каждого блюда
                 $order_id = $row["id"];
@@ -95,6 +103,7 @@
                 echo "</td>";
                 
                 echo "<td>".$row["time"]."</td>";
+                
                 // Кнопки для изменения статуса заказа
                 echo "<td>";
                 echo "<form action='kitchen.php' method='post'>";
@@ -107,8 +116,10 @@
                 echo "</select>";
                 echo "<input type='submit' value='Изменить статус'>";
                 echo "</form>";
+                echo "<td>".$row["courier_login"]."</td>";
                 echo "</td>";
                 echo "</tr>";
+                
             }
         } else {
             echo "<tr><td colspan='7'>результатов не найдено</td></tr>";

@@ -19,7 +19,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['cart'] = [];
         $_SESSION['user'] = $user;
         $_SESSION['user_id'] = $user['id']; // Записываем ID пользователя в сессию
-        header('Location: user.php');
+        $_SESSION['role'] = $user['role']; // Записываем роль пользователя в сессию
+
+        // Проверка роли пользователя и перенаправление на соответствующую страницу
+        switch ($user['role']) {
+            case 'cook':
+                header('Location: Kitchen.php');
+                break;
+            case 'courier':
+                header('Location: kyrer.php');
+                break;
+            case 'manager':
+                header('Location: meneger.php');
+                break;
+            default:
+                header('Location: user.php');
+                break;
+        }
         exit();
     } else {
         $_SESSION['message'] = 'Неверный логин или пароль.';
@@ -27,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 }
+
 
 
 ?>

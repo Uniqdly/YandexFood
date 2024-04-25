@@ -69,7 +69,13 @@
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
         }
+        session_start();
 
+        if (isset($_SESSION['role']) && $_SESSION['role'] !== 'manager') {
+            // Роль пользователя не является "courier", перенаправляем на страницу логина
+            header('Location: login.php');
+            exit();
+        }
         if (isset($_POST['submit'])) {
             // Обработка формы добавления нового блюда
             $dish_name = $_POST["name"];

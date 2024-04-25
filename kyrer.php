@@ -57,13 +57,20 @@
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
         }
-
+        session_start();
+        if (isset($_SESSION['role']) && $_SESSION['role'] !== 'courier') {
+            // Роль пользователя не является "courier", перенаправляем на страницу логина
+            header('Location: login.php');
+            exit();
+        }
+        $courier_id = $_SESSION['user_id'];
         // Обработка изменения статуса заказа
         if ($_SERVER["REQUEST_METHOD"] == "POST") 
         {
+            
             $order_id = $_POST["order_id"];
             $new_status = $_POST["new_status"];
-            $sql_update = "UPDATE Orders SET status='$new_status' WHERE id=$order_id";
+            $sql_update = "UPDATE Orders SET status='$new_status', courier_login=(SELECT login FROM users WHERE id=$courier_id) WHERE id=$order_id";
             if ($conn->query($sql_update) === TRUE) 
             {
                 echo " ";
