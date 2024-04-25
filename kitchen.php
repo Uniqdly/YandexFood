@@ -2,55 +2,34 @@
 <html>
 <head>
     <title>Кухня</title>
+    <!-- Подключение Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script>
-        function logout() {
-            // Очистка сессии и перенаправление на страницу выхода
-            fetch('logout.php')
-                .then(() => {
-                    window.location.href = 'logout.php';
-                })
-                .catch(error => console.error('Error:', error));
-        }
-        $(document).ready(function(){
-            // Функция для проверки статуса заказа
-            function checkOrderStatus() {
-                $.ajax({
-                    url: 'check_status.php',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function(response) {
-                        // Обновляем статус на странице
-                        $('#order-status').text('Статус: ' + response.status);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Ошибка при получении статуса заказа:', error);
-                    }
-                });
-            }
-
-            // Вызываем функцию для проверки статуса при загрузке страницы
-            checkOrderStatus();
-
-            // Устанавливаем интервал для автоматической проверки статуса каждые 5 секунд
-            setInterval(checkOrderStatus, 5000);
-        });
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
-    <h1>Список заказов</h1>
-    <button onclick="logout()">Выход</button>
-    <h2>Заказы в стадии подготовки</h2>
-    <table>
-        <tr>
-            <th>Заказ</th>
-            <th>Статус заказа</th>
-            <th>Блюда</th>
-            <th>Ингредиенты</th>
-            <th>Доставка к</th>
-            <th>Действия</th>
-            <th>Курьер который забирает заказ</th>
-        </tr>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Список заказов</h1>
+        <div class="text-right mb-3">
+            <button class="btn btn-danger" onclick="logout()">Выход</button>
+        </div>
+        <h2>Заказы в стадии подготовки</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Заказ</th>
+                        <th scope="col">Статус заказа</th>
+                        <th scope="col">Блюда</th>
+                        <th scope="col">Ингредиенты</th>
+                        <th scope="col">Доставка к</th>
+                        <th scope="col">Действия</th>
+                        <th scope="col">Курьер который забирает заказ</th>
+                    </tr>
+                </thead>
+<body>
+    
         <?php
         // Подключение к базе данных
         $conn = new mysqli("localhost", "root", "", "delivery");

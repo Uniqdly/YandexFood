@@ -32,20 +32,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html>
 <head>
     <title>Регистрация</title>
+    <!-- Подключение Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Регистрация</h1>
-    <?php if (isset($_SESSION['message'])): ?>
-        <p><?php echo $_SESSION['message']; ?></p>
-        <?php unset($_SESSION['message']); ?>
-    <?php endif; ?>
-    <form method="post">
-        <label for="name">Имя:</label>
-        <input type="text" name="name" required><br>
-        <label for="password">Пароль:</label>
-        <input type="password" name="password" required><br>
-        <button type="submit">Зарегистрироваться</button>
-        <a href="login.php">Уже есть аккаунт?</a>
-    </form>
+    <div class="container mt-5">
+        <h1 class="text-center">Регистрация</h1>
+        <?php if (isset($_SESSION['message'])): ?>
+            <div class="alert alert-danger" role="alert">
+                <?php echo $_SESSION['message']; ?>
+            </div>
+            <?php unset($_SESSION['message']); ?>
+        <?php endif; ?>
+        <form method="post">
+            <div class="form-group">
+                <label for="name">Имя:</label>
+                <input type="text" class="form-control" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input type="password" class="form-control" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+            <a href="login.php" class="ml-2">Уже есть аккаунт?</a>
+        </form>
+    </div>
 </body>
 </html>
+
