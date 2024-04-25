@@ -1,9 +1,70 @@
+<?php 
+session_start(); // Переместил вызов session_start() в самое начало
+
+$conn = new mysqli("localhost", "root", "", "delivery");
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if (isset($_SESSION['role']) && $_SESSION['role'] !== 'manager') {
+    header('Location: login.php');
+    exit();
+}
+
+if (isset($_POST['submit'])) {
+    // Обработка формы добавления нового блюда
+    $dish_name = $_POST["name"];
+    $ingredients = $_POST["ingredients_name"];
+    $description = $_POST["description"];
+    $price = $_POST["price"];
+    $photo = $_FILES["photo"]["tmp_name"];
+
+    // Вставка данных о блюде в таблицу Dishes
+    $sql = "INSERT INTO Dishes (name, ingredients_name, description, price, photo) VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssis", $dish_name, $ingredients, $description, $price, $photo);
+    $stmt->execute();
+    $stmt->close();
+
+    // Получаем ID добавленного блюда
+    $dish_id = $conn->insert_id;
+
+    // Разделение списка ингредиентов на отдельные записи
+    $ingredient_names = explode(",", $ingredients);
+    foreach ($ingredient_names as $ingredient_name) {
+        // Вставка данных об ингредиенте в таблицу ingredients
+        $ingredient_sql = "INSERT INTO Ingredients (name, name_dishes) VALUES (?, ?)";
+        $ingredient_stmt = $conn->prepare($ingredient_sql);
+        $ingredient_stmt->bind_param("ss", $ingredient_name, $dish_name);
+        $ingredient_stmt->execute();
+        $ingredient_stmt->close();
+    }
+
+    echo "<meta http-equiv='refresh' content='0'>";
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Менеджер блюд</title>
+    <!-- Подключение Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        /* Дополнительные стили */
+        .btn-toggle {
+            margin-bottom: 5px;
+        }
+        .status-form {
+            display: none;
+        }
+    </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         function logout() {
@@ -40,83 +101,49 @@
     </script>
 </head>
 <body>
-    <h1>Менеджер блюд</h1>
-    <button onclick="logout()">Выход</button>
-    <h2>Добавить новое блюдо</h2>
-    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
-        <label for="name">Название блюда:</label>
-        <input type="text" id="name" name="name" required><br><br>
-        
-        <label for="ingredients_name">Ингредиенты (через запятую):</label>
-        <input type="text" id="ingredients_name" name="ingredients_name" required><br><br>
-        
-        <label for="description">Описание:</label><br>
-        <textarea id="description" name="description" rows="4" cols="50"></textarea><br><br>
-        
-        <label for="price">Цена:</label>
-        <input type="text" id="price" name="price" required><br><br>
-        
-        <label for="photo">Фото:</label>
-        <input type="file" id="photo" name="photo"><br><br>
-        
-        <input type="submit" name="submit" value="Добавить блюдо">
-    </form>
-
-    <h2>Текущее меню</h2>
-    <table border="1">
-        <tr>
-            <th>Название блюда</th>
-            <th>Ингредиенты</th>
-            <th>Описание</th>
-            <th>Цена</th>
-            <th>Действия</th>
+<div class="container mt-5">
+        <h2 class="text-center">Менеджер блюд</h2>
+        <button class="btn btn-danger float-right mb-3" onclick="logout()">Выход</button>
+        <h3>Добавить новое блюдо</h3>
+        <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Название блюда:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="ingredients_name">Ингредиенты (через запятую):</label>
+                <input type="text" class="form-control" id="ingredients_name" name="ingredients_name" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Описание:</label>
+                <textarea class="form-control" id="description" name="description" rows="4" cols="50"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="price">Цена:</label>
+                <input type="text" class="form-control" id="price" name="price" required>
+            </div>
+            <div class="form-group">
+                <label for="photo">Фото:</label>
+                <input type="file" class="form-control-file" id="photo" name="photo">
+            </div>
+            <button type="submit" name="submit" class="btn btn-primary">Добавить блюдо</button>
+        </form>
+        <h2 class="mt-5">Текущее меню</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Название блюда</th>
+                        <th>Ингредиенты</
+                        <th>Ингредиенты</th>
+        <th>Описание</th>
+        <th>Цена</th>
+        <th>Действия</th>
         </tr>
-        <?php
-        // Отображение текущего меню блюд с возможностью редактирования и удаления
-        $conn = new mysqli("localhost", "root", "", "delivery");
+        </thead>
+        <tbody>
 
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
-        session_start();
-
-        if (isset($_SESSION['role']) && $_SESSION['role'] !== 'manager') {
-            // Роль пользователя не является "courier", перенаправляем на страницу логина
-            header('Location: login.php');
-            exit();
-        }
-        if (isset($_POST['submit'])) {
-            // Обработка формы добавления нового блюда
-            $dish_name = $_POST["name"];
-            $ingredients = $_POST["ingredients_name"];
-            $description = $_POST["description"];
-            $price = $_POST["price"];
-            $photo = $_FILES["photo"]["tmp_name"];
-
-            // Вставка данных о блюде в таблицу Dishes
-            $sql = "INSERT INTO Dishes (name, ingredients_name, description, price, photo) VALUES (?, ?, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("sssis", $dish_name, $ingredients, $description, $price, $photo);
-            $stmt->execute();
-            $stmt->close();
-
-            // Получаем ID добавленного блюда
-            $dish_id = $conn->insert_id;
-
-            // Разделение списка ингредиентов на отдельные записи
-            $ingredient_names = explode(",", $ingredients);
-            foreach ($ingredient_names as $ingredient_name) {
-                // Вставка данных об ингредиенте в таблицу ingredients
-                $ingredient_sql = "INSERT INTO Ingredients (name, name_dishes) VALUES (?, ?)";
-                $ingredient_stmt = $conn->prepare($ingredient_sql);
-                $ingredient_stmt->bind_param("ss", $ingredient_name, $dish_name);
-                $ingredient_stmt->execute();
-                $ingredient_stmt->close();
-            }
-
-            echo "<meta http-equiv='refresh' content='0'>";
-        }
-
+        <?php 
         $sql = "SELECT * FROM Dishes";
         $result = $conn->query($sql);
 
@@ -124,7 +151,7 @@
             while ($row = $result->fetch_assoc()) {
                 echo "<tr>";
                 echo "<td><input type='text' value='" . $row["name"] . "'></td>";
-                
+
                 // Получение списка ингредиентов для текущего блюда
                 $ingredients_sql = "SELECT name FROM Ingredients WHERE name_dishes = '" . $row["name"] . "'";
                 $ingredients_result = $conn->query($ingredients_sql);
@@ -135,7 +162,7 @@
                     }
                 }
                 $ingredients_str = implode(", ", $ingredients_list);
-                
+
                 // Обработка нажатия кнопки "Удалить" для каждой строки в таблице блюд
                 if(isset($_POST["delete_dish"])) {
                     $dish_id = $_POST["dish_id"];
@@ -147,76 +174,50 @@
                     }
                 }
 
-                // Обработка нажатия кнопки "Сохранить" для каждой строки в таблице блюд
-                if(isset($_POST["save_dish"])) {
-                    $dish_id = $_POST["dish_id"];
-                    $new_name = $_POST["new_name"];
-                    $new_ingredients = $_POST["new_ingredients"];
-                    $new_description = $_POST["new_description"];
-                    $new_price = $_POST["new_price"];
-                    // Дополнительно получите новые значения для других полей, если они могут изменяться
-                    // Например, $new_ingredients = $_POST["new_ingredients"];
-                    // и так далее...
-
-                    // Выполните SQL-запрос для обновления данных блюда
-                    $sql_update_dish = "UPDATE Dishes SET name='$new_name' WHERE id=$dish_id";
-                    $sql_update_ingredients = "UPDATE Dishes SET name='$new_ingredients' WHERE id=$dish_id";
-                    $sql_update_description = "UPDATE Dishes SET name='$new_description' WHERE id=$dish_id";
-                    $sql_update_price = "UPDATE Dishes SET name='$new_price' WHERE id=$dish_id";
-                    // Дополнительно добавьте другие поля для обновления
-                    // Например, $sql_update_dish = "UPDATE Dishes SET name='$new_name', ingredients='$new_ingredients' WHERE id=$dish_id";
-
-                    if ($conn->query($sql_update_dish) === TRUE) {
-                        echo "Изменения сохранены успешно.";
-                    } else {
-                        echo "Ошибка при сохранении изменений: " . $conn->error;
-                    }
-                }
-
                 echo "<td><input type='text' value='" . $ingredients_str . "'></td>";
-                
+
                 echo "<td><input type='text' value='" . $row["description"] . "'></td>";
                 echo "<td><input type='text' value='" . $row["price"] . "'></td>";
                 echo "<td>";
-                echo "<td>";
+
                 echo "<form action='" . $_SERVER['PHP_SELF'] . "' method='post'>";
                 echo "<input type='hidden' name='dish_id' value='" . $row["id"] . "'>";
                 echo "<button type='submit' name='save_dish'>Сохранить</button>";
                 echo "</form>";
-                echo "</td>";
 
-                echo "<td>";
                 echo "<form action='" . $_SERVER['PHP_SELF'] . "' method='post'>";
                 echo "<input type='hidden' name='dish_id' value='" . $row["id"] . "'>";
                 echo "<button type='submit' name='delete_dish'>Удалить</button>";
                 echo "</form>";
-                echo "</td>";
 
-                echo "</tr>";
                 echo "</td>";
                 echo "</tr>";
-                
             }
         } else {
             echo "<tr><td colspan='5'>Нет доступных блюд в меню.</td></tr>";
         }
         $conn->close();
         ?>
-    </table>
-
-    <h2>Заказы</h2>
-    <table border="1">
+        </tbody>
+        </table>
+        </div>
+        <h2 class="mt-5">Заказы</h2>
+        <div class="table-responsive">
+        <table class="table table-bordered">
+        <thead class="thead-light">
         <tr>
-            <th>ID</th>
-            <th>Статус</th>
-            <th>Состав</th>
-            <th>Общая стоимость</th>
-            <th>Адрес</th>
-            <th>Время</th>
-            <th>Номер телефона</th>
-            <th>Комментарий</th>
-            <th>Изменить статус</th>
+        <th>ID</th>
+        <th>Статус</th>
+        <th>Состав</th>
+        <th>Общая стоимость</th>
+        <th>Адрес</th>
+        <th>Время</th>
+        <th>Номер телефона</th>
+        <th>Комментарий</th>
+        <th>Изменить статус</th>
         </tr>
+        </thead>
+        <tbody>
         <?php
         // Отображение всех заказов с возможностью изменения статуса
         $conn = new mysqli("localhost", "root", "", "delivery");
@@ -255,6 +256,7 @@
                 echo "<td>" . $row["time"] . "</td>";
                 echo "<td>" . $row["phone_number"] . "</td>";
                 echo "<td>" . $row["comment"] . "</td>";
+
                 // Кнопки для изменения статуса заказа
                 echo "<td>";
                 echo "<form action='meneger.php' method='post'>";
@@ -269,13 +271,18 @@
                 echo "</select>";
                 echo "<input type='submit' value='Изменить статус'>";
                 echo "</form>";
+
+                echo "</td>";
+                echo "</tr>";
             }
         } else {
             echo "<tr><td colspan='9'>Нет доступных заказов.</td></tr>";
         }
         $conn->close();
         ?>
-    </table>
-</body>
-</html>
-
+        </tbody>
+        </table>
+        </div>
+        </div>
+        </body>
+        </html>
