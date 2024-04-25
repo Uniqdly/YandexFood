@@ -32,6 +32,21 @@
             die("Connection failed: " . $conn->connect_error);
         }
 
+        // Обработка изменения статуса заказа
+        if ($_SERVER["REQUEST_METHOD"] == "POST") 
+        {
+            $order_id = $_POST["order_id"];
+            $new_status = $_POST["new_status"];
+            $sql_update = "UPDATE Orders SET status='$new_status' WHERE id=$order_id";
+            if ($conn->query($sql_update) === TRUE) 
+            {
+                echo " ";
+            } 
+            else 
+            {
+                echo "Ошибка при изменении статуса заказа: " . $conn->error;
+            }
+        }
         // Запрос на получение списка заказов на кухне
         $sql = "SELECT id, status, dishes_name, address, time FROM Orders";
         $result = $conn->query($sql);
