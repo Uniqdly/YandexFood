@@ -58,5 +58,24 @@ $orders = $stmt->fetchAll();
             </tr>
         <?php endforeach; ?>
     </table>
+
+        <button onclick="redirectToMenu()">Вернуться в меню</button>
+        <button onclick="logout()">Logout</button>
+    </form>
+ <script>
+   
+function redirectToMenu() 
+{
+    window.location.href = 'user.php';
+}
+function logout() {
+    // Очистка сессии и перенаправление на страницу выхода
+    fetch('logout.php')
+        .then(() => {
+            window.location.href = 'logout.php';
+        })
+        .catch(error => console.error('Error:', error));
+}
+ </script>
 </body>
 </html>

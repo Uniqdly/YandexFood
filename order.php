@@ -8,9 +8,15 @@ $dbname = "delivery";
 $conn = new mysqli($servername, $username, $password, $dbname);
 session_start();
 
+
 // Проверка соединения
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
+}
+if (!isset($_SESSION['user_id'])) {
+    // Пользователь не авторизован, перенаправляем на страницу авторизации
+    header('Location: Login.php');
+    exit;
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -75,7 +81,29 @@ $conn->close();
 
         
         <button type="submit">Заказать</button>
+
+        <!-- Кнопка "Мои заказы" -->
+        <button onclick="redirectToMyOrders()">Мои заказы</button>
+        <button onclick="redirectToMenu()">Вернуться в меню</button>
+        <button onclick="logout()">Logout</button>
     </form>
- 
+ <script>
+    function redirectToMyOrders() 
+{
+    window.location.href = 'MyOrders.php';
+}
+function redirectToMenu() 
+{
+    window.location.href = 'user.php';
+}
+function logout() {
+    // Очистка сессии и перенаправление на страницу выхода
+    fetch('logout.php')
+        .then(() => {
+            window.location.href = 'logout.php';
+        })
+        .catch(error => console.error('Error:', error));
+}
+ </script>
 </body>
 </html>
