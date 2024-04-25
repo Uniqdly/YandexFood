@@ -168,34 +168,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         cartItems.splice(index, 1);
     }
     
-    updateCart();
     // Сохраняем обновленную корзину в сессию
     sessionStorage.setItem('cart', JSON.stringify(cart));
+    
+    updateCart();
 }
 
 
-    function updateCart() {
-        const cartItemsElement = document.getElementById('cartItems');
-        cartItemsElement.innerHTML = '';
+
+
+function updateCart() {
+    const cartItemsElement = document.getElementById('cartItems');
+    cartItemsElement.innerHTML = '';
+    
+    cartItems.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.classList.add('cartItem');
         
-        cartItems.forEach((item, index) => {
-            const li = document.createElement('li');
-            li.classList.add('cartItem');
-            
-            const itemName = document.createElement('span');
-            itemName.textContent = item.name + ' x' + item.quantity;
-            
-            const removeButton = document.createElement('span');
-            removeButton.textContent = '-';
-            removeButton.classList.add('remove');
-            removeButton.onclick = () => removeFromCart(index);
-            
-            li.appendChild(itemName);
-            li.appendChild(removeButton);
-            
-            cartItemsElement.appendChild(li);
-        });
-    }
+        const itemName = document.createElement('span');
+        itemName.textContent = item.name + ' x' + item.quantity;
+        
+        const removeButton = document.createElement('span');
+        removeButton.textContent = '-';
+        removeButton.classList.add('remove');
+        removeButton.onclick = () => removeFromCart(index);
+        
+        li.appendChild(itemName);
+        li.appendChild(removeButton);
+        
+        cartItemsElement.appendChild(li);
+    });
+}
+
 
     function openCart() {
         document.getElementById('cartModal').style.display = 'block';
