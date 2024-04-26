@@ -81,22 +81,26 @@ if (isset($_SESSION['role']) && $_SESSION['role'] !== 'cook') {
                 echo "<td>".$row["dishes_name"]."</td>";
                 
                 
-                // Получение ингредиентов для каждого блюда
                 $order_id = $row["id"];
-                $sql_dish_ingredients = "SELECT ingredients_name
-                                        FROM orders
-                                        WHERE id = $order_id";
+                $sql_dish_ingredients = "SELECT name
+                                        FROM Ingredients
+                                        WHERE name_dishes IN (
+                                            SELECT dishes_name
+                                            FROM Orders
+                                            WHERE id = $order_id
+                                        )";
                 $result_dish_ingredients = $conn->query($sql_dish_ingredients);
 
                 // Вывод ингредиентов
                 echo "<td>";
                 if ($result_dish_ingredients->num_rows > 0) {
                     while ($ingredient_row = $result_dish_ingredients->fetch_assoc()) {
-                        echo $ingredient_row["ingredients_name"] . "<br>";
+                        echo $ingredient_row["name"] . "<br>";
                     }
                 } else {
                     echo "нет ингредиентов";
                 }
+
                 echo "</td>";
                 
                 echo "<td>".$row["time"]."</td>";
