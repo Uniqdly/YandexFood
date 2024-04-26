@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Апр 26 2024 г., 00:55
+-- Время создания: Апр 26 2024 г., 10:54
 -- Версия сервера: 8.0.30
 -- Версия PHP: 7.4.30
 
@@ -28,7 +28,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `Dishes` (
-  `id` bigint UNSIGNED NOT NULL,
+  `id` int UNSIGNED NOT NULL,
   `name` varchar(255) DEFAULT NULL,
   `ingredients_name` varchar(255) DEFAULT NULL,
   `description` text,
@@ -44,7 +44,7 @@ INSERT INTO `Dishes` (`id`, `name`, `ingredients_name`, `description`, `price`, 
 (1, 'Бургер', NULL, 'вкусный воппер который тает во рту', 230, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZ6fOJvmdCxCxNw_sA2eLojqyimTigPx7by_ALKrq0cA&s'),
 (2, 'Картошка Фри', NULL, 'горячая сочная картошечка которую так и хочется отжарить', 79, 'https://i.pinimg.com/736x/53/e6/b4/53e6b462c1c6c5d6f97cd7380d63c008.jpg'),
 (3, 'Напиток', NULL, 'напиток - это то что может охладить твой пылкий зад', 110, 'https://www.otlichnye-tseny.ru/upload/iblock/135/wk3jts424ofhquwtwguqvz84mw3zxqxw.jpg'),
-(4, 'Соусы', NULL, 'добавь яркого вкуса любому (у)блюду', 45, 'https://ariciapizza.ru/wp-content/uploads/2020/06/syrnyj-1-1.jpg'),
+(4, 'Соус', NULL, 'добавь яркого вкуса любому (у)блюду', 45, 'https://ariciapizza.ru/wp-content/uploads/2020/06/syrnyj-1-1.jpg'),
 (5, 'Ролл', NULL, 'это лучше чем шаурма', 200, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0rN2v0jlnsFka8WjZDKWWhN-TPuEzMGLWsMb_l4wWMw&s'),
 (16, 'Дед', 'Старость', '', 1000, 'https://gorodrabot.ru/images/articles/927.jpg?v=1600416417');
 
@@ -176,19 +176,19 @@ ALTER TABLE `Users`
 -- AUTO_INCREMENT для таблицы `Dishes`
 --
 ALTER TABLE `Dishes`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT для таблицы `Ingredients`
 --
 ALTER TABLE `Ingredients`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 
 --
 -- AUTO_INCREMENT для таблицы `Orders`
 --
 ALTER TABLE `Orders`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT для таблицы `Users`
