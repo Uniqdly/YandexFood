@@ -58,38 +58,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             font-weight: bold;
             cursor: pointer;
         }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .card {
+            width: 18rem;
+            margin-bottom: 20px;
+        }
+
+        .card-img-top {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .card-text {
+            margin-bottom: 1rem;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #cartButton {
+            margin-top: 20px;
+        }
     </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
     
-    <h1>Меню</h1>
-    <div class="container">
-    <div class="row">
-        <?php foreach ($dishes as $dish): ?>
-            <div class="card" style="width: 18rem;">
-                <img src="<?php echo $dish['photo']; ?>" class="card-img-top" alt="<?php echo $dish['name']; ?>">
-                <div class="card-body">
-                    <h5 class="card-title"><?php echo $dish['name']; ?></h5>
-                    <p class="card-text"><?php echo $dish['description']; ?></p>
-                    <button onclick="addToCart(<?php echo $dish['id']; ?>, '<?php echo $dish['name']; ?>')" class="btn btn-primary">Добавить в корзину</button>
-                </div>
+<h1>Меню</h1>
+<div class="container">
+    <?php foreach ($dishes as $dish): ?>
+        <div class="card">
+            <img src="<?php echo $dish['photo']; ?>" class="card-img-top" alt="<?php echo $dish['name']; ?>">
+            <div class="card-body">
+                <h5 class="card-title"><?php echo $dish['name']; ?></h5>
+                <p class="card-text"><?php echo $dish['description']; ?></p>
+                <h5 class="card-text"><?php echo $dish['price']; ?>$</h5>
+                <button onclick="addToCart(<?php echo $dish['id']; ?>, '<?php echo $dish['name']; ?>')"
+                        class="btn btn-primary">Добавить в корзину
+                </button>
             </div>
-        <?php endforeach; ?>
-    </div>
+        </div>
+    <?php endforeach; ?>
 </div>
 
 <?php if ($loggedIn): ?>
-        <!-- Кнопка "Logout" -->
-        <button onclick="logout()">Выход</button>
-        <!-- Кнопка "Мои заказы" -->
-        <button onclick="redirectToMyOrders()">Мои заказы</button>
-    <?php else: ?>
-        <!-- Кнопка "Register" -->
-        <button onclick="redirectToRegister()">Регистрация</button>
-        <!-- Кнопка "Login" -->
-        <button onclick="redirectToLogin()">Вход</button>
-    <?php endif; ?>
+    <!-- Кнопка "Logout" -->
+    <button onclick="logout()">Выход</button>
+    <!-- Кнопка "Мои заказы" -->
+    <button onclick="redirectToMyOrders()">Мои заказы</button>
+<?php else: ?>
+    <!-- Кнопка "Register" -->
+    <button onclick="redirectToRegister()">Регистрация</button>
+    <!-- Кнопка "Login" -->
+    <button onclick="redirectToLogin()">Вход</button>
+<?php endif; ?>
     <!-- Модальное окно с информацией о блюде -->
     <div id="dishModal" class="modal">
         <div class="modal-content">
@@ -103,7 +154,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     <div class="modal-content">
         <span class="close" onclick="closeModal('confirmModal')">&times;</span>
         <h2>Вы точно хотите добавить это в корзину?</h2>
-        <h3 id="confirmDishName"></h3>
+        
+        <h3 id="confirmDishName"> </h3>
         <p id="confirmDishDescription"></p>
         <?php if ($loggedIn): ?> <button onclick="confirmPurchase()">Добавить в корзину</button>
             <?php else: ?>
@@ -223,7 +275,7 @@ function updateCart() {
     
     // Отображение общей суммы
     const totalElement = document.createElement('p');
-    totalElement.textContent = 'Итог: ' + totalAmount + '₽';
+    totalElement.textContent = 'Итог: ' + totalAmount + '$';
     cartItemsElement.appendChild(totalElement);
 }
 

@@ -123,7 +123,7 @@
                 echo "<td>".$row["time"]."</td>";
                 // Кнопка "Выбрать" и форма для изменения статуса заказа
                 echo "<td>";
-                echo "<button id='select_button_".$row["id"]."' onclick='toggleSelectButton(".$row["id"].")'>Выбрать</button>";
+                echo "<button id='select_button_".$row["id"]."' onclick='toggleSelectButton(".$row["id"].")'>Изменить статус заказа</button>";
                 echo "<form id='status_form_".$row["id"]."' action='kyrer.php' method='post' style='display:none;'>";
                 echo "<input type='hidden' name='order_id' value='".$row["id"]."'>";
                 echo "<select name='new_status'>";
