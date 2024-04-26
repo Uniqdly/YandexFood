@@ -44,6 +44,20 @@ $stmt->close();
 
     echo "<meta http-equiv='refresh' content='0'>";
 }
+if (isset($_POST['assign_role'])) {
+    $user_id = $_POST['user_id'];
+    $role = $_POST['role'];
+
+    // Проверка наличия пользователя с указанным ID и обновление его роли
+    $update_user_sql = "UPDATE Users SET role = ? WHERE id = ?";
+    $stmt = $conn->prepare($update_user_sql);
+    $stmt->bind_param("si", $role, $user_id);
+    $stmt->execute();
+    $stmt->close();
+
+    echo "Роль пользователя с ID $user_id успешно обновлена на $role.";
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -105,6 +119,23 @@ $stmt->close();
 <div class="container mt-5">
         <h2 class="text-center">Менеджер блюд</h2>
         <button class="btn btn-danger float-right mb-3" onclick="logout()">Выход</button>
+        <h3>Управление пользователями</h3>
+<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+    <div class="form-group">
+        <label for="user_id">ID пользователя:</label>
+        <input type="text" class="form-control" id="user_id" name="user_id" required>
+    </div>
+    <div class="form-group">
+        <label for="role">Выберите роль:</label>
+        <select class="form-control" id="role" name="role" required>
+            <option value="courier">Курьер</option>
+            <option value="manager">Менеджер</option>
+            <option value="cook">Повар</option>
+        </select>
+    </div>
+    <button type="submit" name="assign_role" class="btn btn-primary">Назначить роль</button>
+</form>
+
         <h3>Добавить новое блюдо</h3>
         <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
             <div class="form-group">
@@ -148,6 +179,58 @@ $stmt->close();
         $sql = "SELECT * FROM Dishes";
         $result = $conn->query($sql);
 
+        if(isset($_POST["edit_dish"])) {
+            $edit_dish_id = $_POST["edit_dish_id"];
+            $edit_dish_sql = "SELECT * FROM Dishes WHERE id = $edit_dish_id";
+            $edit_dish_result = $conn->query($edit_dish_sql);
+            if ($edit_dish_result->num_rows > 0) {
+                $edit_dish_row = $edit_dish_result->fetch_assoc();
+                // Отобразите форму с существующими данными блюда для редактирования
+                echo "<h3>Редактировать блюдо</h3>";
+                echo "<form action='".$_SERVER['PHP_SELF']."' method='post'>";
+                echo "<input type='hidden' name='edit_dish_id' value='".$edit_dish_row["id"]."'>";
+                echo "<div class='form-group'>";
+                echo "<label for='name'>Название:</label>";
+                echo "<input type='text' class='form-control' name='edit_name' value='".$edit_dish_row["name"]."'>";
+                echo "</div>";
+                echo "<div class='form-group'>";
+                echo "<label for='ingredients_name'>Ингредиенты (через запятую):</label>";
+                echo "<input type='text' class='form-control' name='edit_ingredients_name' value='".$edit_dish_row["ingredients_name"]."'>";
+                echo "</div>";
+                echo "<div class='form-group'>";
+                echo "<label for='description'>Описание:</label>";
+                echo "<textarea class='form-control' name='edit_description'>".$edit_dish_row["description"]."</textarea>";
+                echo "</div>";
+                echo "<div class='form-group'>";
+                echo "<label for='price'>Цена:</label>";
+                echo "<input type='text' class='form-control' name='edit_price' value='".$edit_dish_row["price"]."'>";
+                echo "</div>";
+                echo "<div class='form-group'>";
+                echo "<label for='photo'>Ссылка на фото:</label>";
+                echo "<input type='text' class='form-control' name='edit_photo' value='".$edit_dish_row["photo"]."'>";
+                echo "</div>";
+                echo "<button type='submit' name='save_edited_dish' class='btn btn-primary'>Сохранить изменения</button>";
+                echo "</form>";
+            }
+        }
+        if(isset($_POST["save_edited_dish"])) {
+            $edit_dish_id = $_POST["edit_dish_id"];
+            $edit_name = $_POST["edit_name"];
+            $edit_ingredients = $_POST["edit_ingredients_name"];
+            $edit_description = $_POST["edit_description"];
+            $edit_price = $_POST["edit_price"];
+            $edit_photo = $_POST["edit_photo"];
+            
+            // Обновите информацию о блюде в базе данных
+            $update_dish_sql = "UPDATE Dishes SET name=?, ingredients_name=?, description=?, price=?, photo=? WHERE id=?";
+            $update_stmt = $conn->prepare($update_dish_sql);
+            $update_stmt->bind_param("sssssi", $edit_name, $edit_ingredients, $edit_description, $edit_price, $edit_photo, $edit_dish_id);
+            $update_stmt->execute();
+            $update_stmt->close();
+            
+            // Перенаправление или вывод сообщения об успешном обновлении блюда
+            echo "Блюдо успешно обновлено!";
+        }
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 echo "<tr>";
@@ -174,6 +257,7 @@ $stmt->close();
                         echo "Ошибка при удалении блюда: " . $conn->error;
                     }
                 }
+                
 
                 echo "<td><input type='text' value='" . $ingredients_str . "'></td>";
 
@@ -181,10 +265,12 @@ $stmt->close();
                 echo "<td><input type='text' value='" . $row["price"] . "'></td>";
                 echo "<td>";
 
+                echo "<td>";
                 echo "<form action='" . $_SERVER['PHP_SELF'] . "' method='post'>";
-                echo "<input type='hidden' name='dish_id' value='" . $row["id"] . "'>";
-                echo "<button type='submit' name='save_dish'>Сохранить</button>";
+                echo "<input type='hidden' name='edit_dish_id' value='" . $row["id"] . "'>";
+                echo "<button type='submit' name='edit_dish'>Редактировать</button>";
                 echo "</form>";
+
 
                 echo "<form action='" . $_SERVER['PHP_SELF'] . "' method='post'>";
                 echo "<input type='hidden' name='dish_id' value='" . $row["id"] . "'>";
