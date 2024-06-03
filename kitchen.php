@@ -112,7 +112,7 @@ if (isset($_SESSION['role']) && $_SESSION['role'] !== 'cook') {
                 echo "<select name='new_status'>";
                 echo "<option value='Обрабатывается'>Обрабатывается</option>";
                 echo "<option value='На кухне'>На кухне</option>";
-                echo "<option value='Ожидает курьера'>Ожидает курьера</option>";
+                echo "<option value='Готов, ожидает курьера'>Готов, ожидает курьера</option>";
                 echo "<option value='Передано курьеру'>Передано курьеру</option>";
                 echo "</select>";
                 echo "<input type='submit' value='Изменить статус'>";
