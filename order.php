@@ -35,7 +35,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user_id = $_SESSION['user_id'];
     
         // SQL запрос для выбора заказов пользователя с указанным статусом
-        $sql_check = "SELECT * FROM orders WHERE user_id = $user_id AND status = 'Обрабатывается'";
+        $sql_check = "SELECT * FROM orders WHERE user_id = $user_id AND status = 'Обрабатывается' ORDER BY id DESC LIMIT 1";
+
+
         $result_check = $conn->query($sql_check);
     
         if ($result_check->num_rows > 0) {
@@ -117,15 +119,17 @@ $conn->close();
 <body>
     <h1>Оформление заказа</h1>
     
-    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+    <form id="order-form" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+
         <label for="address">Адрес (Улица, дом, квартира):</label>
         <input type="text" id="address" name="address" required><br><br>
         
         <label for="delivery-time">Время доставки:</label>
         <input type="time" id="delivery-time" name="delivery-time" min="00:00" max="23:59" required><br><br>
     
-        <label for="phone">Номер телефона:</label>
-        <input type="tel" id="phone" name="phone" required><br><br>
+        <label for="phone">Номер телефона (11 чисел):</label>
+<input type="tel" id="phone" name="phone" required maxlength="11"><br><br>
+
         
         <label for="comment">Комментарий к заказу:</label><br>
         <textarea id="comment" name="comment" rows="4" cols="50"></textarea><br><br>
@@ -137,7 +141,23 @@ $conn->close();
             <button onclick="logout()">Выход</button>
         </div>
     </form>
-    
+    <script>
+    function validateForm() {
+        var phoneInput = document.getElementById('phone');
+        if (phoneInput.value.length !== 11) {
+            alert('Номер телефона должен содержать 11 чисел.');
+            return false; // Отменить отправку формы
+        }
+        return true; // Продолжить отправку формы
+    }
+
+    document.getElementById('order-form').addEventListener('submit', function(event) {
+        if (!validateForm()) {
+            event.preventDefault(); // Отменить отправку формы
+        }
+    });
+</script>
+
     <script>
         function redirectToMyOrders() {
             window.location.href = 'MyOrders.php';

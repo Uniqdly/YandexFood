@@ -230,10 +230,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 }
 
 
-    function removeFromCart(index) {
-    cart[index].quantity -= 1;
-    
-    if (cart[index].quantity === 0) {
+function removeFromCart(index) {
+    if (cart[index].quantity > 1) {
+        cart[index].quantity -= 1;
+        cartItems[index].quantity -= 1;
+    } else {
+        // Если количество равно 1, удаляем товар из корзины
         cart.splice(index, 1);
         cartItems.splice(index, 1);
     }
@@ -243,6 +245,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     
     updateCart();
 }
+
 
 
 
@@ -262,13 +265,19 @@ function updateCart() {
         
         totalAmount += item.price * item.quantity;
         
-        const removeButton = document.createElement('span');
+        const removeButton = document.createElement('button');
         removeButton.textContent = '-';
         removeButton.classList.add('remove');
         removeButton.onclick = () => removeFromCart(index);
         
+        const addButton = document.createElement('button');
+        addButton.textContent = '+';
+        addButton.classList.add('add');
+        addButton.onclick = () => addToCartQuantity(index);
+        
         li.appendChild(itemName);
         li.appendChild(removeButton);
+        li.appendChild(addButton);
         
         cartItemsElement.appendChild(li);
     });
@@ -278,6 +287,15 @@ function updateCart() {
     totalElement.textContent = 'Итог: ' + totalAmount + '$';
     cartItemsElement.appendChild(totalElement);
 }
+
+function addToCartQuantity(index) {
+    cart[index].quantity += 1;
+    cartItems[index].quantity += 1;
+    updateCart();
+    // Сохраняем обновленную корзину в сессию
+    sessionStorage.setItem('cart', JSON.stringify(cart));
+}
+
 
 
 function openCart() {

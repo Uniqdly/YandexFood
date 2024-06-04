@@ -63,10 +63,22 @@ $orders = $stmt->fetchAll();
     <table>
         <tr>
             <th>Статус</th>
+            <th>Блюда</th>
+            <th>Сумма</th>
+            <th>Адрес</th>
+            <th>Время</th>
+            <th>Номер телефона</th>
+            <th>Комментарий</th>
         </tr>
         <?php foreach ($orders as $order): ?>
             <tr>
                 <td><?php echo $order['status']; ?></td>
+                <td><?php echo $order['dishes_name']; ?></td>
+                <td><?php echo $order['total_price']; ?></td>
+                <td><?php echo $order['address']; ?></td>
+                <td><?php echo $order['time']; ?></td>
+                <td><?php echo $order['phone_number']; ?></td>
+                <td><?php echo $order['comment']; ?></td>
             </tr>
         <?php endforeach; ?>
     </table>
