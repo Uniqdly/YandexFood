@@ -7,7 +7,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script> 
+    <script>
         function logout() {
             // Очистка сессии и перенаправление на страницу выхода
             fetch('logout.php').then(() => {
@@ -60,9 +60,10 @@
                         $new_status = $_POST["new_status"];
                         $sql_update = "UPDATE Orders SET status='$new_status' WHERE id=$order_id";
                         if ($conn->query($sql_update) === TRUE) {
-                            echo " ";
+                            $_GET['status'] = $new_status; // Сохраняем новый статус в параметрах URL
+                            echo "<div class='alert alert-success' role='alert'>Статус заказа изменен успешно</div>";
                         } else {
-                            echo "Ошибка при изменении статуса заказа: " . $conn->error;
+                            echo "<div class='alert alert-danger' role='alert'>Ошибка при изменении статуса заказа: " . $conn->error . "</div>";
                         }
                     }
 
@@ -100,18 +101,19 @@
                             
                             // Кнопки для изменения статуса заказа
                             echo "<td>";
-                            echo "<form action='kitchen.php' method='post'>";
+                            echo "<form action='kitchen.php' method='post' class='d-inline'>";
                             echo "<input type='hidden' name='order_id' value='".$row["id"]."'>";
-                            echo "<select name='new_status'>";
-                            echo "<option value='Обрабатывается'>Обрабатывается</option>";
-                            echo "<option value='На кухне'>На кухне</option>";
-                            echo "<option value='Ожидает курьера'>Ожидает курьера</option>";
-                            echo "<option value='Передано курьеру'>Передано курьеру</option>";
-                            echo "</select>";
-                            echo "<input type='submit' value='Изменить статус'>";
+                            if ($row["status"] == 'Обрабатывается') {
+                                echo "<button type='submit' name='new_status' value='На кухне' class='btn btn-warning btn-sm'>На кухне</button>";
+                            } elseif ($row["status"] == 'На кухне') {
+                                echo "<button type='submit' name='new_status' value='Готов, ожидает курьера' class='btn btn-success btn-sm'>Готов, ожидает курьера</button>";
+                            } elseif ($row["status"] == 'Готов, ожидает курьера') {
+                                echo "<button type='button' class='btn btn-secondary btn-sm' disabled>Нет действий</button>";
+                            } 
                             echo "</form>";
-                            echo "<td>".$row["courier_login"]."</td>";
                             echo "</td>";
+                            
+                            echo "<td>".$row["courier_login"]."</td>";
                             echo "</tr>";
                         }
                     } else {

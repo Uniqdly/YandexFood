@@ -8,12 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <style>
-        /* Дополнительные стили */
-        .btn-toggle {
-            margin-bottom: 5px;
-        }
-        .status-form {
-            display: none;
+        .btn-action {
+            margin: 2px;
         }
     </style>
     <script>
@@ -25,15 +21,21 @@
                 })
                 .catch(error => console.error('Error:', error));
         }
-        function toggleSelectButton(orderId) {
-            // Скрыть кнопку "Выбрать"
-            document.getElementById('select_button_' + orderId).style.display = 'none';
-            // Отобразить форму изменения статуса заказа
-            document.getElementById('status_form_' + orderId).style.display = 'inline';
+
+        function changeOrderStatus(orderId, newStatus) {
+            $.ajax({
+                url: 'kyrer.php',
+                type: 'POST',
+                data: { order_id: orderId, new_status: newStatus },
+                success: function(response) {
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Ошибка при изменении статуса заказа:', error);
+                }
+            });
         }
-    </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script>
+
         $(document).ready(function(){
             // Функция для проверки статуса заказа
             function checkOrderStatus() {
@@ -61,22 +63,23 @@
 </head>
 <body>
 <div class="container mt-5">
-        <h1 class="text-center">Список заказов</h1>
-        <h2 class="mt-4">Доступные заказы</h2>
-        <div class="text-right mb-3">
-            <button class="btn btn-danger" onclick="logout()">Выход</button>
-        </div>
-        <table class="table table-bordered">
-            <thead class="thead-light">
-                <tr>
-                    <th>Заказ</th>
-                    <th>Статус заказа</th>
-                    <th>Блюда</th>
-                    <th>Адрес</th>
-                    <th>Доставка к</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
+    <h1 class="text-center">Список заказов</h1>
+    <h2 class="mt-4">Доступные заказы</h2>
+    <div class="text-right mb-3">
+        <button class="btn btn-danger" onclick="logout()">Выход</button>
+    </div>
+    <table class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>Заказ</th>
+                <th>Статус заказа</th>
+                <th>Блюда</th>
+                <th>Адрес</th>
+                <th>Доставка к</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
         <?php
         // Подключение к базе данных
         $conn = new mysqli("localhost", "root", "", "delivery");
@@ -92,24 +95,21 @@
             exit();
         }
         $courier_id = $_SESSION['user_id'];
+
         // Обработка изменения статуса заказа
-        if ($_SERVER["REQUEST_METHOD"] == "POST") 
-        {
-            
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $order_id = $_POST["order_id"];
             $new_status = $_POST["new_status"];
             $sql_update = "UPDATE Orders SET status='$new_status', courier_login=(SELECT login FROM users WHERE id=$courier_id) WHERE id=$order_id";
-            if ($conn->query($sql_update) === TRUE) 
-            {
-                echo " ";
-            } 
-            else 
-            {
+            if ($conn->query($sql_update) === TRUE) {
+                exit();
+            } else {
                 echo "Ошибка при изменении статуса заказа: " . $conn->error;
             }
         }
-        // Запрос на получение списка заказов на кухне
-        $sql = "SELECT id, status, dishes_name, address, time FROM Orders";
+
+        // Запрос на получение списка заказов с нужными статусами
+        $sql = "SELECT id, status, dishes_name, address, time FROM Orders WHERE status IN ('Готов, ожидает курьера', 'Забрал заказ', 'Заказ доставлен')";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
@@ -121,26 +121,26 @@
                 echo "<td>".$row["dishes_name"]."</td>";
                 echo "<td>".$row["address"]."</td>";
                 echo "<td>".$row["time"]."</td>";
-                // Кнопка "Выбрать" и форма для изменения статуса заказа
+                // Кнопки для изменения статуса заказа
                 echo "<td>";
-                echo "<button id='select_button_".$row["id"]."' onclick='toggleSelectButton(".$row["id"].")'>Изменить статус заказа</button>";
-                echo "<form id='status_form_".$row["id"]."' action='kyrer.php' method='post' style='display:none;'>";
-                echo "<input type='hidden' name='order_id' value='".$row["id"]."'>";
-                echo "<select name='new_status'>";
-                echo "<option value='Готов забрать заказ'>Готов забрать заказ</option>";
-                echo "<option value='Забрал заказ'>Забрал заказ</option>";
-                echo "<option value='Заказ доставлен'>Заказ доставлен</option>";
-                echo "</select>";
-                echo "<input type='submit' value='Изменить статус'>";
-                echo "</form>";
+                if ($row["status"] == 'Готов, ожидает курьера') {
+                    echo "<button class='btn btn-primary btn-action' onclick=\"changeOrderStatus(".$row["id"].", 'Забрал заказ')\">Забрал заказ</button>";
+                }
+                elseif ($row["status"] == 'Забрал заказ') {
+                    echo "<button class='btn btn-success btn-action' onclick=\"changeOrderStatus(".$row["id"].", 'Заказ доставлен')\">Заказ доставлен</button>";
+                } elseif ($row["status"] == 'Заказ доставлен') {
+                    echo "<button type='button' class='btn btn-secondary btn-sm' disabled>Нет действий</button>";
+                }
                 echo "</td>";
                 echo "</tr>";
             }
         } else {
-            echo "<tr><td colspan='6'>результатов не найдено</td></tr>";
+            echo "<tr><td colspan='6'>Результатов не найдено</td></tr>";
         }
         $conn->close();
         ?>
+        </tbody>
     </table>
+</div>
 </body>
 </html>
