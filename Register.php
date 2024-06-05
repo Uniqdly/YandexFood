@@ -2,7 +2,7 @@
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['name'];
+    $username = $_POST['login'];
     $password = $_POST['password'];
     $role = 'user';
 
@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = $stmt->fetch();
 
     if ($user) {
-        $_SESSION['message'] = 'Пользователь с таким логином уже существует.';
+        $_SESSION['message'] = 'Пользователь с таким email уже существует.';
     } else {
         // Добавление нового пользователя
         $stmt = $pdo->prepare('INSERT INTO Users (login, password, role) VALUES (:login, :password, :role)');
@@ -45,10 +45,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php unset($_SESSION['message']); ?>
         <?php endif; ?>
         <form method="post">
-            <div class="form-group">
-                <label for="name">Имя:</label>
-                <input type="text" class="form-control" name="name" required>
-            </div>
+        <div class="form-group">
+    <label for="email">Email:</label>
+    <input type="email" class="form-control" name="login" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+</div>
+
+
+
             <div class="form-group">
                 <label for="password">Пароль:</label>
                 <input type="password" class="form-control" name="password" required>
