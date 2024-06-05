@@ -42,13 +42,21 @@ if (isset($_SESSION['role']) && $_SESSION['role'] !== 'manager') {
 <body>
 <div class="container mt-5">
     <h2 class="text-center">Менеджер</h2>
+    <div id="message">
+        <?php
+        if (isset($_GET['message'])) {
+            $decoded_message = urldecode($_GET['message']);
+            echo '<div class="alert alert-success" role="alert">' . $decoded_message . '</div>';
+        }
+        ?>
+    </div>
     <button class="btn btn-danger float-right mb-3" onclick="logout()">Выход</button>
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a class="nav-link active" href="meneger.php?page=users">Управление пользователями</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="meneger.php?page=add_dish">Добавить блюдо</a>
+            <a class="nav-link <?php echo isset($_GET['page']) && $_GET['page'] === 'add_dish' ? 'active' : ''; ?>" href="meneger.php?page=add_dish">Добавить блюдо</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="meneger.php?page=edit_menu">Редактировать меню</a>

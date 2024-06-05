@@ -24,6 +24,17 @@
 </form>
 
 <?php
+// Подключение к базе данных
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "delivery";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Ошибка подключения к базе данных: " . $conn->connect_error);
+}
 if (isset($_POST['submit'])) {
     // Обработка формы добавления нового блюда
     $dish_name = $_POST["name"];
@@ -53,6 +64,10 @@ if (isset($_POST['submit'])) {
         $ingredient_stmt->close();
     }
 
-    echo "Блюдо успешно добавлено!";
+    $message = urlencode("Блюдо успешно добавлено!");
+    
+    header("Location: meneger.php?message=$message&page=add_dish");
+    exit();
 }
+
 ?>
