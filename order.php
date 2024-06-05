@@ -44,11 +44,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Если найдены заказы с указанным статусом, обновляем их данные
             while ($row = $result_check->fetch_assoc()) {
                 $sql_update = "UPDATE orders SET address = '$address', time = '$deliveryDateTime', phone_number = '$phone', comment = '$comment' WHERE id = " . $row['id'];
+                $success_message = "";
+
                 if ($conn->query($sql_update) === TRUE) {
-                    
+                    $success_message = "Заказ успешно отправлен!";
+                    ?>
+                    <div class="container mt-3"> 
+                        <div class="alert alert-success" role="alert">
+                            <?php echo $success_message; ?>
+                        </div>
+                    </div>
+                    <?php
                 } else {
                     echo "Ошибка при обновлении данных заказа: " . $conn->error;
                 }
+                
+                
             }
         }
     }
@@ -63,6 +74,7 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Заказ доставки</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Подключение стилей -->
     <style>
         body {
@@ -114,6 +126,7 @@ $conn->close();
             text-align: center;
             margin-top: 20px;
         }
+        
     </style>
 </head>
 <body>
@@ -175,6 +188,12 @@ $conn->close();
                 })
                 .catch(error => console.error('Error:', error));
         }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Ваши скрипты здесь
     </script>
 </body>
 </html>
