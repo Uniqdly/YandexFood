@@ -6,6 +6,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $role = 'user';
 
+    // Проверка формата электронной почты
+    if (!filter_var($username, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['message'] = 'Неверный формат электронной почты.';
+        header('Location: register.php'); // Предполагается, что ваш файл называется register.php
+        exit();
+    }
+
     $pdo = new PDO('mysql:host=localhost;dbname=delivery', 'root', '');
 
     // Проверка существования пользователя с таким логином
@@ -15,6 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($user) {
         $_SESSION['message'] = 'Пользователь с таким email уже существует.';
+        header('Location: register.php'); // Перенаправление обратно на страницу регистрации
+        exit();
     } else {
         // Добавление нового пользователя
         $stmt = $pdo->prepare('INSERT INTO Users (login, password, role) VALUES (:login, :password, :role)');
@@ -25,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 }
+
 
 ?>
 
