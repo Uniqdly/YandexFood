@@ -31,15 +31,28 @@ if (isset($_POST['assign_role'])) {
     $user_email = $_POST['user_email'];
     $role = $_POST['role'];
 
-    // Проверка наличия пользователя с указанным ID и обновление его роли
-    $update_user_sql = "UPDATE Users SET role = ? WHERE login = ?";
-    $stmt = $conn->prepare($update_user_sql);
-    $stmt->bind_param("ss", $role, $user_email);
+    // Проверка наличия пользователя с указанным email
+    $check_user_sql = "SELECT * FROM Users WHERE login = ?";
+    $stmt = $conn->prepare($check_user_sql);
+    $stmt->bind_param("s", $user_email);
     $stmt->execute();
+    $result = $stmt->get_result();
     $stmt->close();
 
-    $message = urlencode("Роль пользователя с email $user_email успешно обновлена на $role.");
-    
+    if ($result->num_rows > 0) {
+        // Пользователь найден, обновляем его роль
+        $update_user_sql = "UPDATE Users SET role = ? WHERE login = ?";
+        $stmt = $conn->prepare($update_user_sql);
+        $stmt->bind_param("ss", $role, $user_email);
+        $stmt->execute();
+        $stmt->close();
+
+        $message = urlencode("Роль пользователя с email $user_email успешно обновлена на $role.");
+    } else {
+        // Пользователь не найден, отправляем сообщение об ошибке
+        $message = urlencode("Ошибка: Пользователь с email $user_email не найден.");
+    }
+
     header("Location: meneger.php?message=$message");
     exit();
 }

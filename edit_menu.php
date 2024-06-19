@@ -1,3 +1,6 @@
+<?php
+ob_start(); // Включение буферизации вывода в самом начале файла
+?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -181,3 +184,6 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+<?php
+ob_end_flush(); // Отправка содержимого буфера вывода и отключение буферизации
+?>

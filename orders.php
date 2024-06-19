@@ -1,30 +1,3 @@
-<?php
-// Подключение к базе данных
-$conn = new mysqli("localhost", "root", "", "delivery");
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Обработка изменения статуса заказа
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $order_id = $_POST["order_id"];
-    $new_status = $_POST["new_status"];
-    $sql_update = "UPDATE Orders SET status='$new_status' WHERE id=$order_id";
-    if ($conn->query($sql_update) === TRUE) {
-        $message = urlencode("статус успешно изменен!");
-        header("Location: meneger.php?message=$message&page=orders");
-        exit();
-    } else {
-        echo "Ошибка при изменении статуса заказа: " . $conn->error;
-    }
-}
-
-$sql = "SELECT * FROM Orders";
-$result = $conn->query($sql);
-
-?>
-
 <div class="table-responsive">
     <table class="table table-bordered">
         <thead class="thead-light">
@@ -42,6 +15,28 @@ $result = $conn->query($sql);
         </thead>
         <tbody>
         <?php
+        // Подключение к базе данных
+        $conn = new mysqli("localhost", "root", "", "delivery");
+
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        // Обработка изменения статуса заказа
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            $order_id = $_POST["order_id"];
+            $new_status = $_POST["new_status"];
+            $sql_update = "UPDATE Orders SET status='$new_status' WHERE id=$order_id";
+            if ($conn->query($sql_update) === TRUE) {
+                echo " ";
+            } else {
+                echo "Ошибка при изменении статуса заказа: " . $conn->error;
+            }
+        }
+
+        $sql = "SELECT * FROM Orders";
+        $result = $conn->query($sql);
+
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 echo "<tr>";
@@ -56,40 +51,27 @@ $result = $conn->query($sql);
 
                 // Кнопки для изменения статуса заказа
                 echo "<td>";
-                if ($row["status"] == 'Обрабатывается') {
-                    echo "<form action='orders.php' method='post'>";
-                    echo "<input type='hidden' name='order_id' value='".$row["id"]."'>";
-                    echo "<button type='submit' name='new_status' value='На кухне' class='btn btn-warning btn-sm'>На кухне</button>";
-                    echo "</form>";
-                } elseif ($row["status"] == 'На кухне') {
-                    echo "<form action='orders.php' method='post'>";
-                    echo "<input type='hidden' name='order_id' value='".$row["id"]."'>";
-                    echo "<button type='submit' name='new_status' value='Готов, ожидает курьера' class='btn btn-success btn-sm'>Готов, ожидает курьера</button>";
-                    echo "</form>";
-                } elseif ($row["status"] == 'Готов, ожидает курьера') {
-                    echo "<form action='orders.php' method='post'>";
-                    echo "<input type='hidden' name='order_id' value='".$row["id"]."'>";
-                    echo "<button type='submit' name='new_status' value='Забрал заказ' class='btn btn-primary btn-sm'>Забрал заказ</button>";
-                    echo "</form>";
-                } elseif ($row["status"] == 'Забрал заказ') {
-                    echo "<form action='orders.php' method='post'>";
-                    echo "<input type='hidden' name='order_id' value='".$row["id"]."'>";
-                    echo "<button type='submit' name='new_status' value='Заказ доставлен' class='btn btn-info btn-sm'>Заказ доставлен</button>";
-                    echo "</form>";
-                } elseif ($row["status"] == 'Заказ доставлен') {
-                    echo "<button type='button' class='btn btn-secondary btn-sm' disabled>Нет действий</button>";
-                } 
+                echo "<form action='orders.php' method='post'>";
+                echo "<input type='hidden' name='order_id' value='".$row["id"]."'>";
+                echo "<select name='new_status'>";
+                echo "<option value='Обрабатывается'>Обрабатывается</option>";
+                echo "<option value='На кухне'>На кухне</option>";
+                echo "<option value='Нашелся курьер'>Нашелся курьер</option>";
+                echo "<option value='Ожидает курьера'>Ожидает курьера</option>";
+                echo "<option value='Передано курьеру'>Передано курьеру</option>";
+                echo "<option value='Заказ доставлен'>Заказ доставлен</option>";
+                echo "</select>";
+                echo "<input type='submit' value='Изменить статус'>";
+                echo "</form>";
+
                 echo "</td>";
                 echo "</tr>";
             }
         } else {
             echo "<tr><td colspan='9'>Нет доступных заказов.</td></tr>";
         }
+        $conn->close();
         ?>
         </tbody>
     </table>
 </div>
-
-<?php
-$conn->close();
-?>

@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
         <form method="post">
             <div class="form-group">
-                <label for="name">Имя:</label>
+                <label for="name">Email:</label>
                 <input type="text" class="form-control" name="name" required>
             </div>
             <div class="form-group">
