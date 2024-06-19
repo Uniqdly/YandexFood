@@ -26,7 +26,7 @@ $orders = $stmt->fetchAll();
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 20px; 
         }
         
         table {
@@ -71,16 +71,40 @@ $orders = $stmt->fetchAll();
             <th>Комментарий</th>
         </tr>
         <?php foreach ($orders as $order): ?>
-            <tr>
-                <td><?php echo $order['status']; ?></td>
-                <td><?php echo $order['dishes_name']; ?></td>
-                <td><?php echo $order['total_price']; ?></td>
-                <td><?php echo $order['address']; ?></td>
-                <td><?php echo $order['time']; ?></td>
-                <td><?php echo $order['phone_number']; ?></td>
-                <td><?php echo $order['comment']; ?></td>
-            </tr>
-        <?php endforeach; ?>
+    <?php
+    // Проверяем, заполнены ли все необходимые поля заказа
+    $isCompleteOrder = !in_array(null, [
+        $order['status'],
+        $order['dishes_name'],
+        $order['total_price'],
+        $order['address'],
+        $order['time'],
+        $order['phone_number'],
+        $order['comment']
+    ], true) && !in_array('', [
+        $order['status'],
+        $order['dishes_name'],
+        $order['total_price'],
+        $order['address'],
+        $order['time'],
+        $order['phone_number'],
+        $order['comment']
+    ], true);
+    ?>
+
+    <?php if ($isCompleteOrder): ?>
+        <tr>
+            <td><?php echo htmlspecialchars($order['status'], ENT_QUOTES, 'UTF-8'); ?></td>
+            <td><?php echo htmlspecialchars($order['dishes_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+            <td><?php echo htmlspecialchars($order['total_price'], ENT_QUOTES, 'UTF-8'); ?></td>
+            <td><?php echo htmlspecialchars($order['address'], ENT_QUOTES, 'UTF-8'); ?></td>
+            <td><?php echo htmlspecialchars($order['time'], ENT_QUOTES, 'UTF-8'); ?></td>
+            <td><?php echo htmlspecialchars($order['phone_number'], ENT_QUOTES, 'UTF-8'); ?></td>
+            <td><?php echo htmlspecialchars($order['comment'], ENT_QUOTES, 'UTF-8'); ?></td>
+        </tr>
+    <?php endif; ?>
+<?php endforeach; ?>
+
     </table>
 
     <!-- Кнопка "Logout" -->

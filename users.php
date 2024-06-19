@@ -9,6 +9,7 @@
             <option value="courier">Курьер</option>
             <option value="manager">Менеджер</option>
             <option value="cook">Повар</option>
+            <option value="user">Пользователь</option> <!-- Добавленный пункт -->
         </select>
     </div>
     <button type="submit" name="assign_role" class="btn btn-primary">Назначить роль</button>
